@@ -28,7 +28,7 @@ const JoinPage = () => {
   useEffect(() => {
     setHost(searchParams.get('host'));
     console.log(host)
-  }, [])
+  }, [host, searchParams])
 
 
   useEffect(() => {

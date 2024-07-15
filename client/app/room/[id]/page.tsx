@@ -1,64 +1,18 @@
 'use client';
 
 import { useSocket } from '@/context/SocketProvider'
-import { useParams, usePathname } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react'
 import FunctionBtn from '@/components/interviewPage/FunctionBtn'
 import ReactPlayer from 'react-player';
 import peer from '@/service/peer';
-
-interface PopupProps {
-  setPopup: React.Dispatch<React.SetStateAction<boolean>>,
-  handleVideoStream: () => void,
-  remoteSocketId: null | string,
-  sendStreams: () => void,
-  remoteStream: any
-}
-
-const Popup: React.FC<PopupProps> = ({
-  setPopup,
-  handleVideoStream,
-  remoteSocketId,
-  sendStreams,
-  remoteStream
-}) => {
-  return (
-    <div
-      onClick={() => setPopup(false)}
-      className='fixed h-screen w-screen bg-black/60 flex justify-center items-center z-20'
-    >
-      <div className='border h-[200px] w-[340px] bg-slate-900 flex flex-col justify-evenly items-center rounded border-slate-800 gap-4'>
-        <div>
-          <h2 className='text-lg font-bold'>
-            Please Wait!
-          </h2>
-          <h3 className='text-sm font-light opacity-70'>
-            Let us set everything up for you!
-          </h3>
-        </div>
-        <div className='flex gap-4 text-sm font-semibold'>
-          <button
-            onClick={handleVideoStream}
-            className={`border h-fit px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 ${!remoteSocketId && "cursor-not-allowed opacity-30"}`}
-          >
-            Accept to Join
-          </button>
-          <button
-            onClick={sendStreams}
-            className={`border h-fit px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 ${!remoteStream && "cursor-not-allowed opacity-30"}`}
-          >
-            Send Stream
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+import Popup from '@/components/room/Popup';
+import CodePlayground from '@/components/interviewPage/CodePlayground';
 
 const InterviewPage = () => {
   const [name, setName] = useState<null | string>(null)
   const [remoteSocketId, setRemoteSocketId] = useState<null | string>(null)
   const [myStream, setMyStream] = useState<any>();
+  const [toggleCode, setToggleCode] = useState(false);
   const [remoteStream, setRemoteStream] = useState<any>();
   const [popup, setPopup] = useState(true);
   const socket = useSocket();
@@ -96,7 +50,7 @@ const InterviewPage = () => {
     const ans = await peer.getAnswer(offer)
 
     socket?.emit("call:accepted", { to: from, ans });
-  }, [])
+  }, [socket])
 
   const sendStreams = useCallback(() => {
     for (const track of myStream?.getTracks()) {
@@ -206,9 +160,15 @@ const InterviewPage = () => {
           }
         </div>
       </section>
-      <section>
-        <FunctionBtn />
+      <section className='z-30'>
+        <FunctionBtn setToggleCode={setToggleCode} />
       </section>
+
+      {toggleCode &&
+        <div className='absolute right-0 pt-2 h-[91vh] z-20 bg-[#2E3235]'>
+          <CodePlayground />
+        </div>
+      }
     </div>
   )
 }

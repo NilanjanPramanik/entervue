@@ -1,8 +1,9 @@
 'use client';
 
+import Loading from '@/components/Loading';
 import { useSocket } from '@/context/SocketProvider';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useState } from 'react'
 
 const InvitePage = () => {
   const [name, setName] = useState<string>("")
@@ -13,15 +14,16 @@ const InvitePage = () => {
   useEffect(() => {
     setRoom(searchParams.get('room'));
     setName(searchParams.get('host'));
-  }, [])
+  }, [searchParams])
 
   const handleCopyLink = useCallback(async () => {
     room && await navigator.clipboard.writeText(
       `http://localhost:3000/join?room=${room}&host=${name}`
     )
-  }, [searchParams, room, name]);
+  }, [room, name]);
 
   return (
+
     <div className='flex flex-col gap-12 justify-center items-center text-white h-screen w-screen'>
       <h3>Hey! we have generated invition link for you</h3>
       <div className='flex gap-4'>

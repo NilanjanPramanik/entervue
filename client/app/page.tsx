@@ -21,7 +21,7 @@ export default function Home() {
     socket?.emit('room:join', { name, room: uurl });
     router.push(`/invite?room=${uurl}&host=${name}`)
 
-  }, [router, name, roomId, socket]);
+  }, [router, name, socket]);
 
   const handleJoinRoom = useCallback((data: any) => {
     const { name, room } = data;

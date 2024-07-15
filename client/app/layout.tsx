@@ -3,6 +3,7 @@ import { Inter, Montserrat } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import { SocketProvider } from "@/context/SocketProvider";
+import { Suspense } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 const mostserrat = Montserrat({ subsets: ["latin"], weight: ["100", "300", "400", "500", "700"] })
@@ -21,9 +22,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn(mostserrat.className)}>
         <main className="bg-slate-950 min-h-screen">
-          <SocketProvider>
-            {children}
-          </SocketProvider>
+          <Suspense>
+            <SocketProvider>
+              {children}
+            </SocketProvider>
+          </Suspense>
         </main>
       </body>
     </html>
