@@ -1,0 +1,1 @@
+const CLIENT_URL='https://hire-huddle.vercel.app/'

@@ -1,11 +1,12 @@
 const {createServer} = require("http");
 const { Server } = require("socket.io");
+const { CLIENT_URL } = require("./constant");
 
 const server = createServer();
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000'
+    origin: CLIENT_URL || 'http://localhost:3000',
   }
 });
 
@@ -37,6 +38,11 @@ io.on('connection', (socket) => {
   
   socket.on("peer:nego:done", ({to, ans}) => {
     io.to(to).emit("peer:nego:final", { from: socket.id, ans });
+  })
+
+  socket.on("code-share", ({room, code, language, output}) => {
+    // console.log(output)
+    io.to(room).emit("code-recieve", {from: socket.id, code, language, output});
   })
 })
 

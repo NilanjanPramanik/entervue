@@ -165,7 +165,7 @@ const InterviewPage = () => {
       </section>
 
       {toggleCode &&
-        <div className='absolute right-0 pt-2 h-[91vh] z-20 bg-[#2E3235]'>
+        <div className='absolute right-0 top-0 pt-2 h-screen z-20 bg-[#2E3235]'>
           <CodePlayground />
         </div>
       }

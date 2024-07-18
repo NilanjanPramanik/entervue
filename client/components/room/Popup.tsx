@@ -30,7 +30,8 @@ const Popup: React.FC<PopupProps> = ({
         <div className='flex gap-4 text-sm font-semibold'>
           <button
             onClick={handleVideoStream}
-            className={`border h-fit px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 ${!remoteSocketId && "cursor-not-allowed opacity-30"}`}
+            className={`border h-fit px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 
+              ${!remoteSocketId && "cursor-not-allowed opacity-30"}`}
           >
             Accept to Join
           </button>

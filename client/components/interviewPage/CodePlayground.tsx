@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { LanguageSupport } from '@codemirror/language';
 import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
@@ -12,11 +12,16 @@ import { rust } from '@codemirror/lang-rust';
 import { material } from '@uiw/codemirror-theme-material';
 import { LANGUAGES, STARTER_CODE } from '@/constant';
 import Output from '@/components/code-editor/Output';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useSocket } from '@/context/SocketProvider';
 
 const CodePlayground = () => {
   const [language, setLanguage] = useState("javascript");
   const [value, setValue] = useState("//Start Coding");
+  const [outputValue, setOutputValue] = useState("Run the code.")
   const [pop, setPop] = useState(false);
+  const url = usePathname();
+  const socket = useSocket();
 
   const EXTENSIONS: { [key: string]: LanguageSupport[] } = {
     python: [python()],
@@ -32,8 +37,38 @@ const CodePlayground = () => {
     setValue(val);
   }, []);
 
+  const sendCodeToSocket = useCallback(() => {
+    const room:string = url.slice(6, url.length);
+    socket?.emit("code-share", {room, code:value, language, output:outputValue});
+  }, [url,socket,value,language,outputValue]);
+
+  const recieveCodeFromSocket = useCallback((data:any) => {
+    const {code, language} = data;
+    console.log("recieve funcion run")
+    // console.log(data);
+  }, [])
+
+  const handleRecievedData = useCallback((data:any) => {
+    const {from, code, language, output} = data;
+    // console.log(code)
+    setValue(code);
+    setLanguage(language);
+    setOutputValue(output);
+  }, [])
+  
+  useEffect(() => {
+    sendCodeToSocket();
+    socket?.on("code-share", (data) => recieveCodeFromSocket(data));
+    socket?.on("code-recieve", (data) => handleRecievedData(data))
+
+    return () => {
+      socket?.off("code-share", (data) => recieveCodeFromSocket(data));
+      socket?.off("code-recieve", (data) => handleRecievedData(data));
+    }
+  }, [sendCodeToSocket, recieveCodeFromSocket,handleRecievedData, socket]);
+
   return (
-    <div className='text-white'>
+    <div className={`text-white flex flex-col h-full`}>
       <div className='text-sm pl-2 relative ml-3 rounded cursor-pointer mb-2'>
         <h3
           className='border text-center w-[120px] py-2 rounded border-slate-500 bg-slate-950 text-xs'
@@ -63,11 +98,11 @@ const CodePlayground = () => {
           theme={material}
           extensions={[EXTENSIONS[language]]}
           basicSetup={{ autocompletion: true }}
-          minWidth={'600px'}
+          minWidth={'650px'}
           minHeight={'400px'}
         />
       </div>
-      <Output code={value} language={language} />
+      <Output code={value} language={language} setOutputValue={setOutputValue} outputValue={outputValue}/>
     </div>
   )
 }

@@ -18,6 +18,7 @@ const InvitePage = () => {
 
   const handleCopyLink = useCallback(async () => {
     room && await navigator.clipboard.writeText(
+      `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/join?room=${room}&host=${name}` ||
       `http://localhost:3000/join?room=${room}&host=${name}`
     )
   }, [room, name]);

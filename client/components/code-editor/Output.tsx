@@ -1,18 +1,22 @@
 "use client";
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
 import { LANGUAGES } from '@/constant';
+import { useSocket } from '@/context/SocketProvider';
 
 const Output = ({
-  code, language
+  code, language, setOutputValue, outputValue
 }: {
   code: string,
-  language: string
+  language: string,
+  setOutputValue: (data: string)=>void,
+  outputValue: string
 }) => {
   const [output, setOutput] = useState('Run the code.')
   const [isErr, setErr] = useState(false);
   const [loading, setLoading] = useState(false);
+  const socket = useSocket();
 
   const handleOutput = useCallback(async () => {
     setErr(false);
@@ -21,7 +25,7 @@ const Output = ({
     }
     try {
       setLoading(true);
-      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/execute`, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/execute`, {
         "language": language,
         //@ts-ignore
         "version": LANGUAGES[language],
@@ -31,7 +35,8 @@ const Output = ({
           }
         ],
       }).then((res) => {
-        setOutput(res.data.run.output)
+        setOutput(res.data.run.output);
+        setOutputValue(res.data.run.output);
         if (res.data.run.code === 1) {
           setErr(true);
         }
@@ -42,7 +47,15 @@ const Output = ({
     } catch (error) {
       console.log(error)
     }
-  }, [code, language])
+  }, [code, language]);
+
+  const handleOutputChangeFromSocket = useCallback(() => {
+    setOutput(outputValue);
+  }, [outputValue])
+
+  useEffect(() => {
+    handleOutputChangeFromSocket();
+  }, [handleOutputChangeFromSocket])
 
 
   return (

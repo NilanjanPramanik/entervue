@@ -20,19 +20,19 @@ const FunctionBtn = ({
     setToggleCode((prev: boolean) => !prev);
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => setTime(date.format(now, 'hh:mm:ss A')), 1000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => setTime(date.format(now, 'hh:mm:ss A')), 1000);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [time, now])
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, [time, now])
 
 
   return (
-    <div className='p-1 w-screen'>
+    <div className='p-1 w-screen bg-slate-950'>
       <div className='grid grid-cols-3 items-center px-6 border-t-[1px] border-slate-800 pt-2 pb-1'>
-        <div>{time}</div>
+        <div></div>
         <div className='flex justify-center gap-4'>
           <ToggleBtn key={1} Icon={FaMicrophone} />
           <ToggleBtn key={2} Icon={FaVideo} />
