@@ -14,7 +14,7 @@ export const SocketProvider = ({
   children
 }: { children: React.ReactNode }) => {
 
-  const socket = useMemo(() => io('localhost:8000'), [])
+  const socket = useMemo(() => io('https://hire-huddle.onrender.com/'), [])
 
   return (
     <SocketContext.Provider value={socket}>
