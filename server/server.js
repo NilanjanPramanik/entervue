@@ -6,13 +6,15 @@ const server = createServer();
 
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL || 'http://localhost:3000',
+    origin:
+    //  CLIENT_URL ||
+      'http://localhost:3000',
   }
 });
 
 const nameToSocketIdMap = new Map();
 const socketIdToNameMap = new Map();
-const port=process.env.PORT || 8000;
+const port=process.env.PORT || 3001;
 
 io.on('connection', (socket) => {
   console.log("Socked connected ", socket.id);
