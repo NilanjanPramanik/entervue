@@ -7,7 +7,7 @@ const server = createServer();
 const io = new Server(server, {
   cors: {
     origin:
-    //  CLIENT_URL ||
+     CLIENT_URL ||
       'http://localhost:3000',
   }
 });
