@@ -1,7 +1,7 @@
 const {createServer} = require("http");
 const { Server } = require("socket.io");
 // const { CLIENT_URL } = require("./constant");
-const CLIENT_URL='https://hire-huddle-7xfxifmtk-nilanjan-pramaniks-projects.vercel.app';
+const CLIENT_URL='https://hire-huddle-hrkjpe4n9-nilanjan-pramaniks-projects.vercel.app';
 
 const server = createServer();
 
