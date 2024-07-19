@@ -12,6 +12,7 @@ const io = new Server(server, {
 
 const nameToSocketIdMap = new Map();
 const socketIdToNameMap = new Map();
+const port=process.env.PORT || 8000;
 
 io.on('connection', (socket) => {
   console.log("Socked connected ", socket.id);
@@ -46,4 +47,4 @@ io.on('connection', (socket) => {
   })
 })
 
-server.listen(8000, () => console.log("Socket Server running..."))
+server.listen(port, () => console.log("Socket Server running..."))
