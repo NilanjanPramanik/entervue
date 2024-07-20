@@ -1,13 +1,14 @@
 const {createServer} = require("http");
 const { Server } = require("socket.io");
 // const { CLIENT_URL } = require("./constant");
-const CLIENT_URL='https://hire-huddle.vercel.app';
+// const CLIENT_URL='https://hire-huddle.vercel.app';
+const CLIENT_URL = 'https://hire-huddle.vercel.app'
 
 const server = createServer();
 
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL
+    origin: CLIENT_URL || 'http://localhost:3000'
   }
 });
 

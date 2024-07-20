@@ -63,7 +63,7 @@ const Output = ({
       <button
         disabled={!code || loading}
         onClick={handleOutput}
-        className={`absolute top-2 right-4 text-xs rounded border-slate-500 border p-2 disabled:cursor-not-allowed disabled:opacity-50 hover:bg-neutral-900`}
+        className={`absolute top-2 right-4 text-xs rounded p-2 disabled:cursor-not-allowed disabled:opacity-50 hover:bg-neutral-900`}
       >
         {loading ? "Running..." : "Run code"}
       </button>

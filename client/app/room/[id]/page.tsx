@@ -32,8 +32,9 @@ const InterviewPage = () => {
 
     const offer = await peer.getOffer();
     socket?.emit("user:call", { to: remoteSocketId, offer });
-
+    
     setMyStream(stream);
+    stream && setPopup(false);
   }, [socket, remoteSocketId]);
 
 
