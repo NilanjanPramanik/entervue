@@ -1,14 +1,14 @@
 const {createServer} = require("http");
 const { Server } = require("socket.io");
 // const { CLIENT_URL } = require("./constant");
-// const CLIENT_URL='https://hire-huddle.vercel.app';
-const CLIENT_URL = 'https://hire-huddle.vercel.app'
+const CLIENT_URL='https://hire-huddle.vercel.app';
+
 
 const server = createServer();
 
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL || 'http://localhost:3000'
+    origin:  CLIENT_URL || 'http://localhost:3000'
   }
 });
 
@@ -46,6 +46,14 @@ io.on('connection', (socket) => {
   socket.on("code-share", ({room, code, language, output}) => {
     // console.log(output)
     io.to(room).emit("code-recieve", {from: socket.id, code, language, output});
+  })
+
+  socket.on("toggle:video", ({to, enabled}) => {
+    io.to(to).emit("video:off", {enabled})
+  })
+
+  socket.on("toggle:audio", ({to, enabled}) => {
+    io.to(to).emit("audio:off", {enabled})
   })
 })
 

@@ -16,6 +16,8 @@ const InterviewPage = () => {
   const [remoteStream, setRemoteStream] = useState<any>();
   const [popup, setPopup] = useState(true);
   const socket = useSocket();
+  const [toggleVideoOn, setToggleVideoOn] = useState(true);
+  const [toggleMicOn, setToggleMicOn] = useState(true);
 
   const handleUserJoined = useCallback((data: any) => {
     const { name, id } = data;
@@ -84,6 +86,37 @@ const InterviewPage = () => {
     await peer.setLocalDescription(ans);
   }, []);
 
+  // Here is the code to toggle mic and camera off/on
+  const toggleAudio = useCallback(() => {
+    myStream?.getAudioTracks().forEach((track: MediaStreamTrack) => {
+      track.enabled = !track.enabled;
+    });
+    setToggleMicOn(!toggleMicOn);
+    socket?.emit('toggle:audio', { to: remoteSocketId, enabled: !toggleMicOn });
+  }, [myStream, toggleMicOn, remoteSocketId]);
+
+  const toggleVideo = useCallback(() => {
+    myStream?.getVideoTracks().forEach((track: MediaStreamTrack) => {
+      track.enabled = !track.enabled;
+    });
+    setToggleVideoOn(!toggleVideoOn);
+    socket?.emit('toggle:video', { to: remoteSocketId, enabled: !toggleVideoOn });
+  }, [myStream, toggleVideoOn, remoteSocketId]);
+
+  const handleVideoOff = useCallback((data: any) => {
+    remoteStream?.getVideoTracks().forEach((track: MediaStreamTrack) => {
+      console.log(data)
+      track.enabled = data.enabled;
+    });
+  }, [remoteStream]);
+
+  const handleAudioOff = useCallback((data:any) => {
+    remoteStream?.getAudioTracks().forEach((track: MediaStreamTrack) => {
+      track.enabled = data.enabled;
+    });
+  }, [remoteStream]);
+
+
 
   useEffect(() => {
     peer.peer?.addEventListener('negotiationneeded', handleNegoNeeded);
@@ -107,6 +140,8 @@ const InterviewPage = () => {
     socket?.on("call:accepted", handleCallAccept)
     socket?.on("peer:nego:needed", handleNegoNeededIncomming)
     socket?.on('peer:nego:final', handleNegoNeedFinal)
+    socket?.on('video:off', handleVideoOff)
+    socket?.on('audio:off', handleAudioOff)
 
     return () => {
       socket?.off("user:joined", handleUserJoined);
@@ -114,6 +149,10 @@ const InterviewPage = () => {
       socket?.off("call:accepted", handleCallAccept)
       socket?.off("peer:nego:needed", handleNegoNeededIncomming)
       socket?.off('peer:nego:final', handleNegoNeedFinal)
+      socket?.off('video:off', handleVideoOff)
+      socket?.off('audio:off', handleAudioOff)
+      socket?.off('toggle:audio');
+      socket?.off('toggle:video');
     }
   }, [
     socket,
@@ -121,7 +160,8 @@ const InterviewPage = () => {
     handleIncomingCall,
     handleCallAccept,
     handleNegoNeededIncomming,
-    handleNegoNeedFinal
+    handleNegoNeedFinal,
+    remoteStream
   ]);
 
 
@@ -162,7 +202,13 @@ const InterviewPage = () => {
         </div>
       </section>
       <section className='z-30'>
-        <FunctionBtn setToggleCode={setToggleCode} />
+        <FunctionBtn 
+          setToggleCode={setToggleCode} 
+          toggleAudio={toggleAudio}
+          toggleVideo={toggleVideo}
+          toggleMicOn={toggleMicOn}
+          toggleVideoOn={toggleVideoOn}
+        />
       </section>
 
       {toggleCode &&
