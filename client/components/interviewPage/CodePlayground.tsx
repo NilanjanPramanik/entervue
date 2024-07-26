@@ -21,6 +21,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 const CodePlayground = ({ isHost }: { isHost: boolean }) => {
   const [language, setLanguage] = useState("javascript");
   const [value, setValue] = useState("//Start Coding");
+  const [codeAccess, setCodeAccess] = useState(false);
   const [hostCode, setHostCode] = useState("");
   const [nonHostCode, setNonHostCode] = useState("");
   const [recieveValue, setRecieveValue] = useState<null | string>(null);
@@ -39,19 +40,80 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
     rust: [rust()],
   };
 
+  // const onChange = useCallback((val: any) => {
+  //     isHost ? setHostCode(val) : setNonHostCode(val);
+  // }, [codeAccess]);
+
+  // const sendHostCode = useDebouncedCallback(() => {
+  //   const room = url.slice(6);
+  //   socket?.emit('send:host-code', {room, code: hostCode});
+  // }, 1000);
+  // // }, [socket, hostCode]);
+
+  // const sendNonHostCode = useDebouncedCallback(() => {
+  //   const room = url.slice(6);
+  //   socket?.emit('send:nonhost-code', {room, code: nonHostCode});
+  // }, 1000);
+  // // }, [socket, nonHostCode]);
+
+  // const handleRecieveHostCode = useCallback((data: any) => {
+  //   const {from, code} = data;
+  //   !isHost && setNonHostCode(code)
+  // }, [setNonHostCode]);
+
+  // const handleRecieveNonHostCode = useCallback((data: any) => {
+  //   const {from, code} = data;
+  //   isHost && setHostCode(code)
+  // }, [setHostCode])
+
+  // const toggleCodeAccess = useCallback(() => {
+  //   const room = url.slice(6);
+  //   setCodeAccess((pre) => !pre);
+  //   socket?.emit('code:access', {room, codeAccess});
+  // }, [codeAccess]);
+
+  // const handleCodeAccess = useCallback((data: any) => {
+  //   const {codeAccess} = data;
+  //   setCodeAccess(codeAccess);
+  // }, [])
+
+  // useEffect(() => {
+  //   isHost && setCodeAccess(true);
+  // }, [])
+
+  // useEffect(() => {
+  //   (isHost) && sendHostCode();
+  //   (!isHost) && sendNonHostCode();
+  // }, [hostCode, nonHostCode]);
+
+  
+  // useEffect(() => {
+    
+  //   !isHost && socket?.on('code:access', handleCodeAccess)
+  //   !isHost && socket?.on('recieve:host-code', handleRecieveHostCode);
+  //   isHost && socket?.on('recieve:nonhost-code', handleRecieveNonHostCode);
+  //   return () => {
+  //     socket?.off('code:access', handleCodeAccess)
+  //     socket?.off('recieve:host-code', handleRecieveHostCode);
+  //     socket?.off('recieve:nonhost-code', handleRecieveNonHostCode)
+  //   }
+  // }, [socket,handleRecieveHostCode, handleRecieveNonHostCode,handleCodeAccess])
+
   const onChange = useCallback((val: any) => {
     isHost ? setHostCode(val) : setNonHostCode(val);
   }, []);
 
-  const sendHostCode = useCallback(() => {
+  const sendHostCode = useDebouncedCallback(() => {
     const room = url.slice(6);
     socket?.emit('send:host-code', {room, code: hostCode});
-  }, [socket, hostCode]);
+  }, 1000)
+  // }, [socket, hostCode]);
 
-  const sendNonHostCode = useCallback(() => {
+  const sendNonHostCode = useDebouncedCallback(() => {
     const room = url.slice(6);
     socket?.emit('send:nonhost-code', {room, code: nonHostCode});
-  }, [socket, nonHostCode]);
+  }, 1000)
+  // }, [socket, nonHostCode]);
 
   const handleRecieveHostCode = useCallback((data: any) => {
     const {from, code} = data;
@@ -77,7 +139,6 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
     }
   }, [socket,handleRecieveHostCode, handleRecieveNonHostCode])
 
-
   return (
     <div className={`text-white flex flex-col h-full`}>
       <div className='text-sm relative bg-black/50 p-2'>
@@ -90,10 +151,10 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
           </h3>
           {isHost &&
             <button
-              // onClick={}
+              // onClick={toggleCodeAccess}
               className='border border-slate-500 rounded px-4 bg-slate-900 hover:bg-slate-950'
             >
-              Give access 📝
+              {codeAccess ? "Take access 📝" : "Give access 📝"}
             </button>
           }
         </div>
@@ -116,6 +177,7 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
           <CodeMirror
             value={isHost ? hostCode : nonHostCode}
             onChange={onChange}
+            // editable={!codeAccess}
             theme={dracula}
             extensions={[EXTENSIONS[language]]}
             basicSetup={{ autocompletion: false }}
