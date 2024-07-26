@@ -10,17 +10,20 @@ import { java } from "@codemirror/lang-java";
 import { go } from '@codemirror/lang-go';
 import { rust } from '@codemirror/lang-rust';
 import { material } from '@uiw/codemirror-theme-material';
+import { dracula } from '@uiw/codemirror-theme-dracula';
 import { LANGUAGES, STARTER_CODE } from '@/constant';
 import Output from '@/components/code-editor/Output';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useSocket } from '@/context/SocketProvider';
-// import { debounce } from '@/lib/debounce';
-import {useDebouncedCallback} from 'use-debounce';
+import { useDebouncedCallback } from 'use-debounce';
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
-const CodePlayground = () => {
+const CodePlayground = ({ isHost }: { isHost: boolean }) => {
   const [language, setLanguage] = useState("javascript");
   const [value, setValue] = useState("//Start Coding");
-  const [recieveValue, setRecieveValue] = useState<null|string>(null);
+  const [hostCode, setHostCode] = useState("");
+  const [nonHostCode, setNonHostCode] = useState("");
+  const [recieveValue, setRecieveValue] = useState<null | string>(null);
   const [outputValue, setOutputValue] = useState("Run the code.")
   const [openCode, setOpenCode] = useState(false);
   const url = usePathname();
@@ -37,67 +40,64 @@ const CodePlayground = () => {
   };
 
   const onChange = useCallback((val: any) => {
-    setValue(val);
+    isHost ? setHostCode(val) : setNonHostCode(val);
   }, []);
 
-  const sendCodeToSocket = useCallback(() => {
-    const room:string = url.slice(6, url.length);
-    socket?.emit("code-share", {room, code:value, language, output:outputValue});
-  }, [url,socket,value,language,outputValue]);
+  const sendHostCode = useCallback(() => {
+    const room = url.slice(6);
+    socket?.emit('send:host-code', {room, code: hostCode});
+  }, [socket, hostCode]);
 
-  const recieveCodeFromSocket = useCallback((data:any) => {
-    const {code, language} = data;
-    console.log("recieve funcion run")
-    // console.log(data);
-  }, [])
+  const sendNonHostCode = useCallback(() => {
+    const room = url.slice(6);
+    socket?.emit('send:nonhost-code', {room, code: nonHostCode});
+  }, [socket, nonHostCode]);
 
-  const handleRecievedData = useCallback((data:any) => {
-    const {from, code, language, output} = data;
-    // console.log(code)
-    // setValue(code);
-    setRecieveValue(code);
-    setLanguage(language);
-    setOutputValue(output);
-  }, [])
+  const handleRecieveHostCode = useCallback((data: any) => {
+    const {from, code} = data;
+    !isHost && setNonHostCode(code)
+  }, [setNonHostCode]);
 
-  // const debouncedCodeSend = debounce(sendCodeToSocket, 1000);
-  // const debouncedRecieveCode = debounce(handleRecievedData, 1000);
-  const debouncedCodeSend = useDebouncedCallback(() => {
-    const room:string = url.slice(6, url.length);
-    socket?.emit("code-share", {room, code:value, language, output:outputValue});
-  })
+  const handleRecieveNonHostCode = useCallback((data: any) => {
+    const {from, code} = data;
+    isHost && setHostCode(code)
+  }, [setHostCode])
 
-  const debouncedRecieveCode = useDebouncedCallback((data:any) => {
-    const {from, code, language, output} = data;
-    setRecieveValue(code);
-    setLanguage(language);
-    setOutputValue(output);
-  }, 1000);
-  
   useEffect(() => {
-    debouncedCodeSend();
-    // sendCodeToSocket();
-    socket?.on("code-share", (data) => recieveCodeFromSocket(data));
-    // socket?.on("code-recieve", (data) => handleRecievedData(data));
-    socket?.on("code-recieve", (data) => debouncedRecieveCode(data));
+    isHost && sendHostCode();
+    !isHost && sendNonHostCode();
+  }, [hostCode, nonHostCode]);
 
+  useEffect(() => {
+    !isHost && socket?.on('recieve:host-code', handleRecieveHostCode);
+    isHost && socket?.on('recieve:nonhost-code', handleRecieveNonHostCode);
     return () => {
-      socket?.off("code-share", (data) => recieveCodeFromSocket(data));
-      socket?.off("code-recieve", (data) => handleRecievedData(data));
+      socket?.off('recieve:host-code', handleRecieveHostCode);
+      socket?.off('recieve:nonhost-code', handleRecieveNonHostCode)
     }
-  }, [sendCodeToSocket,recieveCodeFromSocket,handleRecievedData, socket]);
+  }, [socket,handleRecieveHostCode, handleRecieveNonHostCode])
+
 
   return (
     <div className={`text-white flex flex-col h-full`}>
-      <div className='text-sm pl-2 relative ml-3 rounded cursor-pointer mb-2'>
-        <h3
-          className='border text-center w-[120px] py-2 rounded border-slate-500 bg-slate-950 text-xs'
-          onClick={() => setOpenCode((prev) => !prev)}
-        >
-          {language}
-        </h3>
+      <div className='text-sm relative bg-black/50 p-2'>
+        <div className='flex gap-6 text-xs'>
+          <h3
+            className='border text-center cursor-pointer py-2 px-4 rounded border-slate-500 bg-slate-900 hover:bg-slate-950'
+            onClick={() => setOpenCode((prev) => !prev)}
+          >
+            {language} ⬇️
+          </h3>
+          {isHost &&
+            <button
+              // onClick={}
+              className='border border-slate-500 rounded px-4 bg-slate-900 hover:bg-slate-950'
+            >
+              Give access 📝
+            </button>
+          }
+        </div>
         <div className={`bg-slate-950 text-xs gap-4 rounded w-[120px] absolute z-30 left-2 top-[100%] mt-1 p-4 flex flex-col ${!openCode && 'hidden'}`}>
-
           {Object.entries(LANGUAGES).map((lang: any, idx) => {
             return (
               <div
@@ -111,25 +111,29 @@ const CodePlayground = () => {
           })}
         </div>
       </div>
-      <div className='max-h-[500px] overflow-y-scroll '>
-        <CodeMirror
-          value={recieveValue||value}
-          onChange={onChange}
-          theme={material}
-          extensions={[EXTENSIONS[language]]}
-          basicSetup={{ autocompletion: true }}
-          minWidth={'650px'}
-          maxWidth={'650px'}
-          minHeight={'500px'}
-        />
-      </div>
-      <div className='w-full h-[1px] bg-slate-500'/>
-      <Output 
-        code={value} 
-        language={language} 
-        setOutputValue={setOutputValue} 
-        outputValue={outputValue}
-      />
+      <PanelGroup direction="vertical">
+        <Panel maxSize={85}>
+          <CodeMirror
+            value={isHost ? hostCode : nonHostCode}
+            onChange={onChange}
+            theme={dracula}
+            extensions={[EXTENSIONS[language]]}
+            basicSetup={{ autocompletion: false }}
+            minWidth={'850px'}
+            maxWidth={'650px'}
+            minHeight={'500px'}
+          />
+        </Panel>
+        <PanelResizeHandle className='h-[2px] bg-[#464a60] hover:bg-[#616686]' />
+        <Panel maxSize={93} defaultSize={15}>
+          <Output
+            code={value}
+            language={language}
+            setOutputValue={setOutputValue}
+            outputValue={outputValue}
+          />
+        </Panel>
+      </PanelGroup>
     </div>
   )
 }

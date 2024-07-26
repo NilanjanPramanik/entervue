@@ -59,21 +59,22 @@ const Output = ({
 
 
   return (
-    <div className=' max-w-[600px]'>
+    <div className='max-w-[850px]] h-full bg-[#22242e] py-3'>
       <button
         disabled={!code || loading}
         onClick={handleOutput}
-        className={`absolute top-2 right-4 text-xs rounded p-2 disabled:cursor-not-allowed disabled:opacity-50 hover:bg-neutral-900`}
+        className={`absolute top-2 border w-fit border-slate-500 right-4 text-xs rounded p-2 disabled:cursor-not-allowe disabled:opacity-30 bg-slate-900 hover:bg-slate-950 ${loading && "cursor-wait"}`}
       >
         {loading ? "Running..." : "Run code"}
       </button>
-      <div className='border-t border-neutral-500 text-xs font-medium p-2 flex gap-2 h-[120px] overflow-y-scroll'>
-        <p>&gt;&gt;</p>
+      <div className='text-base font-medium px-4 flex gap-2 pb-8 h-[85%] overflow-y-scroll'>
+        {/* <pre>&gt;&gt;</pre> */}
+        <pre>👉</pre>
         <div className={`${loading && "hidden"}`}>
           {!isErr ? (
-            <p className='text-green-700'>{output}</p>
+            <pre className='text-green-700'>{output}</pre>
           ) : (
-            <p className='text-red-600'>{output}</p>
+            <pre className='text-red-600'>{output}</pre>
           )}
         </div>
       </div>

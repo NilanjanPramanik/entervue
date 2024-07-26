@@ -7,10 +7,10 @@ import React, { useCallback, useEffect, useState } from 'react'
 const JoinPage = () => {
   const [name, setName] = useState<string>("")
   const [host, setHost] = useState('');
+  const [hostId, setHostId] = useState('');
   const searchParams: any = useSearchParams();
   const router = useRouter();
   const socket = useSocket()
-
 
   const joinToInterview = useCallback(() => {
     const roomId = searchParams.get('room');
@@ -22,13 +22,18 @@ const JoinPage = () => {
 
   const handleJoinRoom = useCallback((data: any) => {
     const { name, room } = data;
+    localStorage.setItem("room_id", room);
+    if (hostId) {
+      localStorage.setItem("host", hostId);
+    }
     console.log(name, room)
   }, [])
 
   useEffect(() => {
     setHost(searchParams.get('host'));
-    console.log(host)
-  }, [host, searchParams])
+    setHostId(searchParams.get('id'));
+    // console.log(host)
+  }, [searchParams])
 
 
   useEffect(() => {

@@ -10,7 +10,6 @@ export default function Home() {
   const router = useRouter();
   const socket = useSocket()
   const [name, setName] = useState<string>("")
-  const [roomId, setRoomId] = useState<string>("")
 
   const goToInterview = useCallback(() => {
     const uurl = generateUniqueId({
@@ -18,8 +17,10 @@ export default function Home() {
       useLetters: true,
     })
 
-    socket?.emit('room:join', { name, room: uurl });
-    router.push(`/invite?room=${uurl}&host=${name}`)
+    socket?.emit('room:join', { name, room: uurl, host: socket.id});
+    localStorage.setItem("room_id", uurl); // Saving the room_id on the host's browser
+    localStorage.setItem("host", String(socket?.id));
+    router.push(`/invite?room=${uurl}&host=${name}&id=${socket?.id}`)
 
   }, [router, name, socket]);
 

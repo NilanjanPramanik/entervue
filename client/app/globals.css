@@ -5,3 +5,7 @@
 ::-webkit-scrollbar {
  display: none !important;
 }
+
+.ͼ1, cm-editor {
+  font-size: larger !important;
+}

@@ -6,22 +6,24 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useCallback, useEffect, useState } from 'react'
 
 const InvitePage = () => {
-  const [name, setName] = useState<string>("")
+  const [host, setHost] = useState<string>("");
+  const [hostId, setHostId] = useState<string>();
   const [room, setRoom] = useState<string>();
   const searchParams: any = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
     setRoom(searchParams.get('room'));
-    setName(searchParams.get('host'));
+    setHost(searchParams.get('host'));
+    setHostId(searchParams.get('id'));
   }, [searchParams])
 
   const handleCopyLink = useCallback(async () => {
     room && await navigator.clipboard.writeText(
-      `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/join?room=${room}&host=${name}` ||
-      `http://localhost:3000/join?room=${room}&host=${name}`
+      `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/join?room=${room}&host=${host}&id=${hostId}` ||
+      `http://localhost:3000/join?room=${room}&host=${host}&id=${hostId}`
     )
-  }, [room, name]);
+  }, [room, host, hostId]);
 
   return (
 

@@ -7,25 +7,38 @@ import { MdCallEnd } from "react-icons/md";
 import { VscVscodeInsiders } from "react-icons/vsc";
 import date from 'date-and-time';
 import ToggleBtn from './ToggleBtn';
+import { useSocket } from '@/context/SocketProvider';
+import { usePathname } from 'next/navigation';
 
 const FunctionBtn = ({
   setToggleCode,
+  toggleCode,
   toggleAudio,
   toggleVideo,
   toggleMicOn,
-  toggleVideoOn
+  toggleVideoOn,
+  isHost
 }: {
   setToggleCode: any,
+  toggleCode: boolean,
   toggleAudio: any,
   toggleVideo: any,
   toggleMicOn: any,
-  toggleVideoOn: any
+  toggleVideoOn: any,
+  isHost: boolean
 }) => {
   const now = new Date();
   const [time, setTime] = useState<null | string>();
+  const socket = useSocket();
+  const url = usePathname();
 
   const handleOpenCode = () => {
     setToggleCode((prev: boolean) => !prev);
+    if(!toggleCode) {
+      socket?.emit("open:code", {room: url.slice(6)});
+    } else {
+      socket?.emit("close:code", {room: url.slice(6)})
+    }
   };
 
   // const handleVideoOnOff = () => {
@@ -46,8 +59,8 @@ const FunctionBtn = ({
 
 
   return (
-    <div className='p-1 w-screen bg-slate-950'>
-      <div className='grid grid-cols-3 items-center px-6 border-t-[1px] border-slate-800 pt-2 pb-1'>
+    <div className='w-screen bg-slate-950'>
+      <div className='grid grid-cols-3 items-center px-6 border-t-[1px] border-slate-800 pt-2 pb-2'>
         <div></div>
         <div className='flex justify-center gap-4'>
           <ToggleBtn 
@@ -67,7 +80,7 @@ const FunctionBtn = ({
           </button>
         </div>
         <div className='flex justify-end'>
-          <button className='' onClick={handleOpenCode}>
+          <button className=' disabled:opacity-45 cursor-pointer disabled:hover:cursor-not-allowed' disabled={!isHost} onClick={handleOpenCode}>
             <VscVscodeInsiders size={26} />
           </button>
         </div>

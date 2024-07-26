@@ -8,7 +8,7 @@ const server = createServer();
 
 const io = new Server(server, {
   cors: {
-    origin:  CLIENT_URL || 'http://localhost:3000'
+    origin: CLIENT_URL || 'http://localhost:3000'
   }
 });
 
@@ -43,9 +43,26 @@ io.on('connection', (socket) => {
     io.to(to).emit("peer:nego:final", { from: socket.id, ans });
   })
 
+  socket.on("open:code", ({room}) => {
+    // console.log(room)
+    io.to(room).emit("opened:code", {room});
+  })
+
+  socket.on("close:code", ({room}) => {
+    // console.log(room)
+    io.to(room).emit("closed:code", {room});
+  })
+
   socket.on("code-share", ({room, code, language, output}) => {
-    // console.log(output)
     io.to(room).emit("code-recieve", {from: socket.id, code, language, output});
+  })
+
+  socket.on("send:host-code", ({room, code}) => {
+    io.to(room).emit("recieve:host-code", {from: socket.id, code});
+  })
+
+  socket.on("send:nonhost-code", ({room, code}) => {
+    io.to(room).emit("recieve:nonhost-code", {from: socket.id, code});
   })
 
   socket.on("toggle:video", ({to, enabled}) => {

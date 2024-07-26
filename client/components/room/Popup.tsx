@@ -15,7 +15,6 @@ const Popup: React.FC<PopupProps> = ({
 }) => {
   return (
     <div
-      // onClick={() => setPopup(false)}
       className='fixed h-screen w-screen bg-black/60 flex justify-center items-center z-20'
     >
       <div className='border h-[200px] w-[340px] bg-slate-900 flex flex-col justify-evenly items-center rounded border-slate-800 gap-4'>
@@ -36,12 +35,6 @@ const Popup: React.FC<PopupProps> = ({
           >
             Accept to Join
           </button>
-          {/* <button
-            onClick={sendStreams}
-            className={`border h-fit px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 ${!remoteStream && "cursor-not-allowed opacity-30"}`}
-          >
-            Send Stream
-          </button> */}
         </div>
       </div>
     </div>

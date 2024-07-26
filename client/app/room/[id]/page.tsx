@@ -10,6 +10,8 @@ import CodePlayground from '@/components/interviewPage/CodePlayground';
 
 const InterviewPage = () => {
   const [name, setName] = useState<null | string>(null)
+  const [isHost, setHost] = useState<boolean>(false);
+  const [remoteName, setRemoteName] = useState<null | string>(null)
   const [remoteSocketId, setRemoteSocketId] = useState<null | string>(null)
   const [myStream, setMyStream] = useState<any>();
   const [toggleCode, setToggleCode] = useState(false);
@@ -22,7 +24,7 @@ const InterviewPage = () => {
   const handleUserJoined = useCallback((data: any) => {
     const { name, id } = data;
     setRemoteSocketId(id)
-    setName(name);
+    setRemoteName(name);
     console.log(name, id)
   }, [])
 
@@ -34,7 +36,7 @@ const InterviewPage = () => {
 
     const offer = await peer.getOffer();
     socket?.emit("user:call", { to: remoteSocketId, offer });
-    
+
     setMyStream(stream);
     stream && setPopup(false);
   }, [socket, remoteSocketId]);
@@ -86,6 +88,14 @@ const InterviewPage = () => {
     await peer.setLocalDescription(ans);
   }, []);
 
+  const handleOpenCode = useCallback((data: any) => {
+    setToggleCode(true)
+  }, [toggleCode])
+
+  const handleCloseCode = useCallback((data: any) => {
+    setToggleCode(false)
+  }, [toggleCode])
+
   // Here is the code to toggle mic and camera off/on
   const toggleAudio = useCallback(() => {
     myStream?.getAudioTracks().forEach((track: MediaStreamTrack) => {
@@ -110,13 +120,18 @@ const InterviewPage = () => {
     });
   }, [remoteStream]);
 
-  const handleAudioOff = useCallback((data:any) => {
+  const handleAudioOff = useCallback((data: any) => {
     remoteStream?.getAudioTracks().forEach((track: MediaStreamTrack) => {
       track.enabled = data.enabled;
     });
   }, [remoteStream]);
 
 
+  useEffect(() => {
+    if (socket?.id === localStorage.getItem("host")) {
+      setHost(true);
+    }
+  }, [])
 
   useEffect(() => {
     peer.peer?.addEventListener('negotiationneeded', handleNegoNeeded);
@@ -140,6 +155,8 @@ const InterviewPage = () => {
     socket?.on("call:accepted", handleCallAccept)
     socket?.on("peer:nego:needed", handleNegoNeededIncomming)
     socket?.on('peer:nego:final', handleNegoNeedFinal)
+    socket?.on('opened:code', handleOpenCode)
+    socket?.on('closed:code', handleCloseCode);
     socket?.on('video:off', handleVideoOff)
     socket?.on('audio:off', handleAudioOff)
 
@@ -149,6 +166,7 @@ const InterviewPage = () => {
       socket?.off("call:accepted", handleCallAccept)
       socket?.off("peer:nego:needed", handleNegoNeededIncomming)
       socket?.off('peer:nego:final', handleNegoNeedFinal)
+      socket?.off('opened:code', handleOpenCode)
       socket?.off('video:off', handleVideoOff)
       socket?.off('audio:off', handleAudioOff)
       socket?.off('toggle:audio');
@@ -161,14 +179,15 @@ const InterviewPage = () => {
     handleCallAccept,
     handleNegoNeededIncomming,
     handleNegoNeedFinal,
+    handleOpenCode,
     remoteStream
   ]);
 
 
   return (
     <div className='flex relative flex-col justify-between h-screen items-center'>
-      <section className='py-1 w-full text-center border-b border-slate-800'>
-        Welcome
+      <section className='py-2 w-full text-center border-b border-slate-800'>
+        🎉 Welcome - {name} 🎉
       </section>
       {popup &&
         <Popup
@@ -179,43 +198,56 @@ const InterviewPage = () => {
           setPopup={setPopup}
         />
       }
-      <section className='w-[80%] overflow-hidden flex justify-between items-center pt-1'>
-        <div className='absolute -top-12 left-6'>
+      <section className={`${!toggleCode ? "w-[90%]" : "w-[100%] pl-2"} h-full relative overflow-hidden pt-`}>
+        <div className='absolute top-2 rounded overflow-hidden w-[180px] drop-shadow-lg'>
           {myStream &&
             <ReactPlayer
               playing
               muted
-              width='200px'
+              width='180px'
+              height='auto'
               url={myStream}
             />
           }
         </div>
-        <div className='rounded w-full h-full overflow-hidden flex justify-end'>
-          {remoteStream &&
-            <ReactPlayer
-              playing
-              width="100%"
-              height="100%"
-              url={remoteStream}
-            />
+        <div className='flex justify-between h-full align-baseline items-end gap-4'>
+          {/* <div className={`${!toggleCode ? "w-[100%]" : "absolute w-[40%] h-[auto] max-w-[700px] bottom-2"} rounded  h-full overflow-hidden flex justify-center z-20 pb-1`}> */}
+          <div className={`flex h-fit w-full justify-center items-center bg-blue-100 mx-auto max-w-[930px] ${toggleCode && "rounded overflow-hidden mb-2"}`}>
+              {remoteStream &&
+                <ReactPlayer
+                  playing
+                  width="100%"
+                  height="100%"
+                  url={remoteStream}
+                />
+              }
+          </div>
+          {toggleCode &&
+            <div className='max-w-[60%] h-full z-20 bg-[#282A36]'>
+              <CodePlayground isHost={isHost} />
+            </div>
           }
         </div>
       </section>
+
       <section className='z-30'>
-        <FunctionBtn 
-          setToggleCode={setToggleCode} 
+        <FunctionBtn
+          setToggleCode={setToggleCode}
+          toggleCode={toggleCode}
           toggleAudio={toggleAudio}
           toggleVideo={toggleVideo}
           toggleMicOn={toggleMicOn}
           toggleVideoOn={toggleVideoOn}
+          isHost={isHost}
         />
       </section>
 
-      {toggleCode &&
-        <div className='absolute right-0 top-0 pt-2 h-screen z-20 bg-[#2E3235]'>
-          <CodePlayground />
+      {/* {toggleCode &&
+        <div className='absolute right-0 top-0 h-screen z-20 bg-[#282A36]'>
+        <div className=' right-0 top-0 h-screen z-20 bg-[#282A36]'>
+          <CodePlayground isHost={isHost} />
         </div>
-      }
+      } */}
     </div>
   )
 }
