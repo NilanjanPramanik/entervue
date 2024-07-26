@@ -65,6 +65,11 @@ io.on('connection', (socket) => {
     io.to(room).emit("recieve:nonhost-code", {from: socket.id, code});
   })
 
+  socket.on("code:access", ({room, codeAccess}) => {
+    console.log(codeAccess)
+    io.to(room).emit("code:access", {codeAccess});
+  })
+
   socket.on("toggle:video", ({to, enabled}) => {
     io.to(to).emit("video:off", {enabled})
   })
