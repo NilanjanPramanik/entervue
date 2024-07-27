@@ -103,7 +103,7 @@ const InterviewPage = () => {
     });
     setToggleMicOn(!toggleMicOn);
     socket?.emit('toggle:audio', { to: remoteSocketId, enabled: !toggleMicOn });
-  }, [myStream, toggleMicOn, remoteSocketId]);
+  }, [myStream, toggleMicOn, remoteSocketId, socket]);
 
   const toggleVideo = useCallback(() => {
     myStream?.getVideoTracks().forEach((track: MediaStreamTrack) => {
@@ -111,7 +111,7 @@ const InterviewPage = () => {
     });
     setToggleVideoOn(!toggleVideoOn);
     socket?.emit('toggle:video', { to: remoteSocketId, enabled: !toggleVideoOn });
-  }, [myStream, toggleVideoOn, remoteSocketId]);
+  }, [myStream, toggleVideoOn, remoteSocketId, socket]);
 
   const handleVideoOff = useCallback((data: any) => {
     remoteStream?.getVideoTracks().forEach((track: MediaStreamTrack) => {
@@ -131,7 +131,7 @@ const InterviewPage = () => {
     if (socket?.id === localStorage.getItem("host")) {
       setHost(true);
     }
-  }, [])
+  }, [socket?.id])
 
   useEffect(() => {
     peer.peer?.addEventListener('negotiationneeded', handleNegoNeeded);

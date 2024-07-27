@@ -8,6 +8,7 @@ const JoinPage = () => {
   const [name, setName] = useState<string>("")
   const [host, setHost] = useState('');
   const [hostId, setHostId] = useState('');
+  const [isLoading, setLoading] = useState(false);
   const searchParams: any = useSearchParams();
   const router = useRouter();
   const socket = useSocket()
@@ -15,6 +16,7 @@ const JoinPage = () => {
   const joinToInterview = useCallback(() => {
     const roomId = searchParams.get('room');
     socket?.emit('room:join', { name, room: roomId });
+    setLoading(true)
     router.push(`/room/${roomId}`)
 
   }, [router, name, searchParams, socket]);
@@ -61,9 +63,10 @@ const JoinPage = () => {
         />
         <button
           onClick={joinToInterview}
+          disabled={!name}
           className='border h-fit text-sm px-6 py-2 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 font-semibold'
         >
-          Go to Interview screen
+          {isLoading ? "Going..." : "Go to Interview screen"}
         </button>
       </div>
     </div>

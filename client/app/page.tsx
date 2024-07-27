@@ -5,6 +5,7 @@ import generateUniqueId from "generate-unique-id";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useSocket } from "@/context/SocketProvider";
+import { BallTriangle } from "react-loader-spinner"
 
 export default function Home() {
   const router = useRouter();
@@ -21,9 +22,9 @@ export default function Home() {
     localStorage.setItem("room_id", uurl); // Saving the room_id on the host's browser
     localStorage.setItem("host", String(socket?.id));
     console.log(socket?.id)
-    router.push(`/invite?room=${uurl}&host=${name}&id=${socket?.id}`)
+    socket?.id && router.push(`/invite?room=${uurl}&host=${name}&id=${socket?.id}`)
 
-  }, [router, name, socket]);
+  }, [router, name, socket, socket?.id]);
 
   const handleJoinRoom = useCallback((data: any) => {
     const { name, room } = data;
@@ -36,7 +37,7 @@ export default function Home() {
     return () => {
       socket?.off('room:join', (data) => handleJoinRoom(data))
     }
-  }, [socket, handleJoinRoom]);
+  }, [socket, socket?.id, handleJoinRoom]);
 
   return (
     <section className="flex flex-col justify-evenly items-center min-h-screen text-white">

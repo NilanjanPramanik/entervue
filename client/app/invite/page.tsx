@@ -9,6 +9,8 @@ const InvitePage = () => {
   const [host, setHost] = useState<string>("");
   const [hostId, setHostId] = useState<string>();
   const [room, setRoom] = useState<string>();
+  const [isCopied, setCopied] = useState(false);
+  const [isLoding, setLoading] = useState(false);
   const searchParams: any = useSearchParams();
   const router = useRouter();
 
@@ -23,7 +25,13 @@ const InvitePage = () => {
       `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/join?room=${room}&host=${host}&id=${hostId}` ||
       `http://localhost:3000/join?room=${room}&host=${host}&id=${hostId}`
     )
+    setCopied(true);
   }, [room, host, hostId]);
+
+  const handleGoToInterviewPage = useCallback(() => {
+    setLoading(true);
+    router.push(`/room/${room}`);
+  }, [router, room])
 
   return (
 
@@ -32,15 +40,16 @@ const InvitePage = () => {
       <div className='flex gap-4'>
         <button
           onClick={handleCopyLink}
-          className='border h-fit text-sm px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 font-semibold'
+          disabled={isCopied}
+          className={'border h-fit text-sm px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 font-semibold'}
         >
-          Copy
+          {isCopied ? "Coppied" : "Copy"}
         </button>
         <button
-          onClick={() => router.push(`/room/${room}`)}
+          onClick={handleGoToInterviewPage} 
           className='border h-fit text-sm px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 font-semibold'
         >
-          Go to Interview screen
+          {isLoding ? "Going..." : "Go to Interview screen"}
         </button>
       </div>
     </div>
