@@ -11,6 +11,7 @@ export default function Home() {
   const router = useRouter();
   const socket = useSocket()
   const [name, setName] = useState<string>("")
+  const [isLoading, setLoading] = useState(false);
 
   const goToInterview = useCallback(() => {
     const uurl = generateUniqueId({
@@ -18,10 +19,11 @@ export default function Home() {
       useLetters: true,
     })
 
-    socket?.emit('room:join', { name, room: uurl, host: socket.id});
+    socket?.emit('room:join', { name, room: uurl, host: socket.id });
     localStorage.setItem("room_id", uurl); // Saving the room_id on the host's browser
     localStorage.setItem("host", String(socket?.id));
     console.log(socket?.id)
+    setLoading(true);
     socket?.id && router.push(`/invite?room=${uurl}&host=${name}&id=${socket?.id}`)
 
   }, [router, name, socket, socket?.id]);
@@ -42,7 +44,7 @@ export default function Home() {
   return (
     <section className="flex flex-col justify-evenly items-center min-h-screen text-white">
       <h1 className="text-xl font-semibold">
-        Welcome to the All in One Interview plathform.
+        👋 Welcome to the All in One Interview plathform 🧑🏻‍💻🎯.
       </h1>
       <div className="flex flex-col gap-6 justify-center">
         <input
@@ -55,7 +57,7 @@ export default function Home() {
           onClick={goToInterview}
           className="bg-lime-300 px-5 py-2 rounded text-slate-950 font-medium cursor-pointer hover:bg-lime-400"
         >
-          Create Interview
+          {isLoading ? "Creating..." : "Create Interview"}
         </button>
       </div>
     </section>
