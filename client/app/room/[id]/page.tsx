@@ -212,7 +212,7 @@ const InterviewPage = () => {
         </div>
         <div className='flex justify-between h-full align-baseline items-end gap-4'>
           {/* <div className={`${!toggleCode ? "w-[100%]" : "absolute w-[40%] h-[auto] max-w-[700px] bottom-2"} rounded  h-full overflow-hidden flex justify-center z-20 pb-1`}> */}
-          <div className={`flex h-fit w-full justify-center items-center bg-blue-100 mx-auto max-w-[930px] ${toggleCode && "rounded overflow-hidden mb-2"}`}>
+          <div className={`flex  w-full justify-center items-center mx-auto max-w-[930px  ${toggleCode ? "rounded overflow-hidden mb-2 bg-red-200 flex justify- items-end" : "h-full"}`}>
               {remoteStream &&
                 <ReactPlayer
                   playing

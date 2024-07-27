@@ -65,9 +65,17 @@ io.on('connection', (socket) => {
     io.to(room).emit("recieve:nonhost-code", {from: socket.id, code});
   })
 
-  socket.on("code:access", ({room, codeAccess}) => {
-    console.log(codeAccess)
-    io.to(room).emit("code:access", {codeAccess});
+  socket.on("write:access", ({room}) => {
+    // console.log(codeAccess)
+    io.to(room).emit("write:access");
+  })
+
+  socket.on("send:output", ({room, output}) => {
+    io.to(room).emit("recieve:output", {output});
+  })
+
+  socket.on("change:language", ({room, language}) => {
+    io.to(room).emit("change:language", {language});
   })
 
   socket.on("toggle:video", ({to, enabled}) => {

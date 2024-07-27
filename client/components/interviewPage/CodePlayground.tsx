@@ -13,19 +13,16 @@ import { material } from '@uiw/codemirror-theme-material';
 import { dracula } from '@uiw/codemirror-theme-dracula';
 import { LANGUAGES, STARTER_CODE } from '@/constant';
 import Output from '@/components/code-editor/Output';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useSocket } from '@/context/SocketProvider';
 import { useDebouncedCallback } from 'use-debounce';
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const CodePlayground = ({ isHost }: { isHost: boolean }) => {
   const [language, setLanguage] = useState("javascript");
-  const [value, setValue] = useState("//Start Coding");
-  const [codeAccess, setCodeAccess] = useState(false);
+  const [writeAccess, setWriteAccess] = useState(isHost);
   const [hostCode, setHostCode] = useState("");
   const [nonHostCode, setNonHostCode] = useState("");
-  const [recieveValue, setRecieveValue] = useState<null | string>(null);
-  const [outputValue, setOutputValue] = useState("Run the code.")
   const [openCode, setOpenCode] = useState(false);
   const url = usePathname();
   const socket = useSocket();
@@ -40,104 +37,84 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
     rust: [rust()],
   };
 
-  // const onChange = useCallback((val: any) => {
-  //     isHost ? setHostCode(val) : setNonHostCode(val);
-  // }, [codeAccess]);
-
-  // const sendHostCode = useDebouncedCallback(() => {
-  //   const room = url.slice(6);
-  //   socket?.emit('send:host-code', {room, code: hostCode});
-  // }, 1000);
-  // // }, [socket, hostCode]);
-
-  // const sendNonHostCode = useDebouncedCallback(() => {
-  //   const room = url.slice(6);
-  //   socket?.emit('send:nonhost-code', {room, code: nonHostCode});
-  // }, 1000);
-  // // }, [socket, nonHostCode]);
-
-  // const handleRecieveHostCode = useCallback((data: any) => {
-  //   const {from, code} = data;
-  //   !isHost && setNonHostCode(code)
-  // }, [setNonHostCode]);
-
-  // const handleRecieveNonHostCode = useCallback((data: any) => {
-  //   const {from, code} = data;
-  //   isHost && setHostCode(code)
-  // }, [setHostCode])
-
-  // const toggleCodeAccess = useCallback(() => {
-  //   const room = url.slice(6);
-  //   setCodeAccess((pre) => !pre);
-  //   socket?.emit('code:access', {room, codeAccess});
-  // }, [codeAccess]);
-
-  // const handleCodeAccess = useCallback((data: any) => {
-  //   const {codeAccess} = data;
-  //   setCodeAccess(codeAccess);
-  // }, [])
-
-  // useEffect(() => {
-  //   isHost && setCodeAccess(true);
-  // }, [])
-
-  // useEffect(() => {
-  //   (isHost) && sendHostCode();
-  //   (!isHost) && sendNonHostCode();
-  // }, [hostCode, nonHostCode]);
-
-  
-  // useEffect(() => {
-    
-  //   !isHost && socket?.on('code:access', handleCodeAccess)
-  //   !isHost && socket?.on('recieve:host-code', handleRecieveHostCode);
-  //   isHost && socket?.on('recieve:nonhost-code', handleRecieveNonHostCode);
-  //   return () => {
-  //     socket?.off('code:access', handleCodeAccess)
-  //     socket?.off('recieve:host-code', handleRecieveHostCode);
-  //     socket?.off('recieve:nonhost-code', handleRecieveNonHostCode)
-  //   }
-  // }, [socket,handleRecieveHostCode, handleRecieveNonHostCode,handleCodeAccess])
-
   const onChange = useCallback((val: any) => {
     isHost ? setHostCode(val) : setNonHostCode(val);
   }, []);
 
+  const toggleCodeAccess = useCallback(() => {
+    const room = url.slice(6);
+    setWriteAccess((prev) => !prev);
+    socket?.emit("write:access", {room});
+  }, [socket]);
+
+  const toggleNonHostCodeAccess = useCallback(() => {
+    !isHost && setWriteAccess((prev) => !prev);
+  }, [])
+
   const sendHostCode = useDebouncedCallback(() => {
     const room = url.slice(6);
-    socket?.emit('send:host-code', {room, code: hostCode});
+    writeAccess && socket?.emit('send:host-code', {room, code: hostCode});
   }, 1000)
-  // }, [socket, hostCode]);
 
   const sendNonHostCode = useDebouncedCallback(() => {
     const room = url.slice(6);
-    socket?.emit('send:nonhost-code', {room, code: nonHostCode});
+    writeAccess && socket?.emit('send:nonhost-code', {room, code: nonHostCode});
   }, 1000)
-  // }, [socket, nonHostCode]);
 
   const handleRecieveHostCode = useCallback((data: any) => {
     const {from, code} = data;
-    !isHost && setNonHostCode(code)
+    setNonHostCode(code)
   }, [setNonHostCode]);
 
   const handleRecieveNonHostCode = useCallback((data: any) => {
     const {from, code} = data;
-    isHost && setHostCode(code)
+    setHostCode(code)
   }, [setHostCode])
 
+  const handleLanguageChange = useCallback(() => {
+    const room = url.slice(6);
+    socket?.emit("change:language", {room, language})
+  }, [socket, language]);
+
+  const handleLanguageUpdate = useCallback((data: any) => {
+    const {language} = data;
+    setLanguage(language)
+  }, [])
+
   useEffect(() => {
-    isHost && sendHostCode();
-    !isHost && sendNonHostCode();
+    handleLanguageChange();
+  }, [language])
+
+  useEffect(() => {
+    sendHostCode();
+    sendNonHostCode();
   }, [hostCode, nonHostCode]);
 
   useEffect(() => {
-    !isHost && socket?.on('recieve:host-code', handleRecieveHostCode);
-    isHost && socket?.on('recieve:nonhost-code', handleRecieveNonHostCode);
+    socket?.on("change:language", handleLanguageUpdate);
+    
+    return () => {
+      socket?.off("change:language", handleLanguageUpdate);
+    }
+  }, [socket, handleLanguageUpdate])
+
+  useEffect(() => {
+    !isHost && socket?.on('write:access', toggleNonHostCodeAccess);
+    // console.log(writeAccess)
+    return () => {
+      socket?.on('write:access', toggleNonHostCodeAccess);
+    }
+  }, [socket, toggleNonHostCodeAccess, writeAccess])
+
+  useEffect(() => {
+    !writeAccess && socket?.on('recieve:host-code', handleRecieveHostCode);
+    !writeAccess && socket?.on('recieve:nonhost-code', handleRecieveNonHostCode);
     return () => {
       socket?.off('recieve:host-code', handleRecieveHostCode);
       socket?.off('recieve:nonhost-code', handleRecieveNonHostCode)
     }
-  }, [socket,handleRecieveHostCode, handleRecieveNonHostCode])
+  }, [socket,handleRecieveHostCode, handleRecieveNonHostCode, writeAccess])
+
 
   return (
     <div className={`text-white flex flex-col h-full`}>
@@ -151,11 +128,16 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
           </h3>
           {isHost &&
             <button
-              // onClick={toggleCodeAccess}
+              onClick={toggleCodeAccess}
               className='border border-slate-500 rounded px-4 bg-slate-900 hover:bg-slate-950'
             >
-              {codeAccess ? "Take access 📝" : "Give access 📝"}
+              {writeAccess ? "Give access 📝" : "Take access 📝"}
             </button>
+          }
+          {!isHost && 
+            <pre className='text-lime-300 text-sm items-center align-middle flex justify-center'>
+              {writeAccess ? "Write mode 📝" : "View mode 📄"}
+            </pre>
           }
         </div>
         <div className={`bg-slate-950 text-xs gap-4 rounded w-[120px] absolute z-30 left-2 top-[100%] mt-1 p-4 flex flex-col ${!openCode && 'hidden'}`}>
@@ -177,7 +159,8 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
           <CodeMirror
             value={isHost ? hostCode : nonHostCode}
             onChange={onChange}
-            // editable={!codeAccess}
+            autoFocus={writeAccess}
+            editable={writeAccess}
             theme={dracula}
             extensions={[EXTENSIONS[language]]}
             basicSetup={{ autocompletion: false }}
@@ -189,10 +172,8 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
         <PanelResizeHandle className='h-[2px] bg-[#464a60] hover:bg-[#616686]' />
         <Panel maxSize={93} defaultSize={15}>
           <Output
-            code={value}
+            code={isHost ? hostCode : nonHostCode}
             language={language}
-            setOutputValue={setOutputValue}
-            outputValue={outputValue}
           />
         </Panel>
       </PanelGroup>

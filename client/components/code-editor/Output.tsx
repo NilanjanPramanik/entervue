@@ -4,19 +4,19 @@ import React, { useCallback, useEffect, useState } from 'react'
 import axios from 'axios'
 import { LANGUAGES } from '@/constant';
 import { useSocket } from '@/context/SocketProvider';
+import { usePathname } from 'next/navigation';
 
 const Output = ({
-  code, language, setOutputValue, outputValue
+  code, language,
 }: {
   code: string,
   language: string,
-  setOutputValue: (data: string)=>void,
-  outputValue: string
 }) => {
   const [output, setOutput] = useState('Run the code.')
   const [isErr, setErr] = useState(false);
   const [loading, setLoading] = useState(false);
   const socket = useSocket();
+  const url = usePathname();
 
   const handleOutput = useCallback(async () => {
     setErr(false);
@@ -36,7 +36,7 @@ const Output = ({
         ],
       }).then((res) => {
         setOutput(res.data.run.output);
-        setOutputValue(res.data.run.output);
+        // setOutputValue(res.data.run.output);
         if (res.data.run.code === 1) {
           setErr(true);
         }
@@ -49,13 +49,31 @@ const Output = ({
     }
   }, [code, language]);
 
-  const handleOutputChangeFromSocket = useCallback(() => {
-    setOutput(outputValue);
-  }, [outputValue])
+  // const handleOutputChangeFromSocket = useCallback(() => {
+  //   setOutput(outputValue);
+  // }, [outputValue])
+
+  const handleSendOutput = useCallback(() => {
+    const room = url.slice(6);
+    socket?.emit("send:output", {room, output});
+  }, [socket, output])
+
+  const handleRecieveOutput = useCallback((data: any) => {
+    const {output} = data;
+    setOutput(output);
+  }, [])
 
   useEffect(() => {
-    handleOutputChangeFromSocket();
-  }, [handleOutputChangeFromSocket])
+    handleSendOutput();
+    // handleOutputChangeFromSocket();
+    socket?.on("recieve:output", handleRecieveOutput);
+    
+    return () => {
+      socket?.off("recieve:output", handleRecieveOutput);
+    }
+  }, [socket, handleRecieveOutput, handleSendOutput])
+
+// console.log(language, code)
 
 
   return (
