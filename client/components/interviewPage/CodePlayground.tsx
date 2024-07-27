@@ -170,7 +170,7 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
           />
         </Panel>
         <PanelResizeHandle className='h-[2px] bg-[#464a60] hover:bg-[#616686]' />
-        <Panel maxSize={93} defaultSize={15}>
+        <Panel maxSize={93} defaultSize={15} >
           <Output
             code={isHost ? hostCode : nonHostCode}
             language={language}

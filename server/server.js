@@ -8,7 +8,7 @@ const server = createServer();
 
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL || 'http://localhost:3000'
+    origin:  [CLIENT_URL,'http://localhost:3000']
   }
 });
 
@@ -70,8 +70,8 @@ io.on('connection', (socket) => {
     io.to(room).emit("write:access");
   })
 
-  socket.on("send:output", ({room, output}) => {
-    io.to(room).emit("recieve:output", {output});
+  socket.on("send:output", ({room, output, error}) => {
+    io.to(room).emit("recieve:output", {output, error});
   })
 
   socket.on("change:language", ({room, language}) => {

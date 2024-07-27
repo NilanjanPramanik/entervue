@@ -36,7 +36,6 @@ const Output = ({
         ],
       }).then((res) => {
         setOutput(res.data.run.output);
-        // setOutputValue(res.data.run.output);
         if (res.data.run.code === 1) {
           setErr(true);
         }
@@ -49,23 +48,19 @@ const Output = ({
     }
   }, [code, language]);
 
-  // const handleOutputChangeFromSocket = useCallback(() => {
-  //   setOutput(outputValue);
-  // }, [outputValue])
-
   const handleSendOutput = useCallback(() => {
     const room = url.slice(6);
-    socket?.emit("send:output", {room, output});
+    socket?.emit("send:output", {room, output, error:isErr});
   }, [socket, output])
 
   const handleRecieveOutput = useCallback((data: any) => {
-    const {output} = data;
+    const {output, error} = data;
     setOutput(output);
+    setErr(error);
   }, [])
 
   useEffect(() => {
     handleSendOutput();
-    // handleOutputChangeFromSocket();
     socket?.on("recieve:output", handleRecieveOutput);
     
     return () => {
@@ -73,11 +68,9 @@ const Output = ({
     }
   }, [socket, handleRecieveOutput, handleSendOutput])
 
-// console.log(language, code)
-
 
   return (
-    <div className='max-w-[850px]] h-full bg-[#22242e] py-3'>
+    <div className='max-w-[850px] h-full bg-[#22242e] py-3'>
       <button
         disabled={!code || loading}
         onClick={handleOutput}
@@ -85,7 +78,7 @@ const Output = ({
       >
         {loading ? "Running..." : "Run code"}
       </button>
-      <div className='text-base font-medium px-4 flex gap-2 pb-8 h-[85%] overflow-y-scroll'>
+      <div className='text-base font-medium px-4 flex gap-2 pb-8 h-[100%] overflow-y-scroll'>
         {/* <pre>&gt;&gt;</pre> */}
         <pre>👉</pre>
         <div className={`${loading && "hidden"}`}>
