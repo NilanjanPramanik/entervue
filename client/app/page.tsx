@@ -50,7 +50,7 @@ export default function Home() {
           👋 Welcome to the All in One Interview plathform 🧑🏻‍💻🎯.
         </h1>
       </div>
-      <div className="flex flex-col gap-6 justify-center">
+      <div className="flex flex-col gap-6 justify-center z-20">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
