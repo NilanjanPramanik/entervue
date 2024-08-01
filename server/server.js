@@ -1,7 +1,7 @@
 const {createServer} = require("http");
 const { Server } = require("socket.io");
 // const { CLIENT_URL } = require("./constant");
-const CLIENT_URL='https://entervue-in.vercel.app/';
+const CLIENT_URL='https://entervue-in.vercel.app';
 
 
 const server = createServer();
