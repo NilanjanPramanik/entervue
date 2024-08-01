@@ -43,9 +43,13 @@ export default function Home() {
 
   return (
     <section className="flex flex-col justify-evenly items-center min-h-screen text-white">
-      <h1 className="text-xl font-semibold">
-        👋 Welcome to the All in One Interview plathform 🧑🏻‍💻🎯.
-      </h1>
+      <div className="flex flex-col items-center">
+        <Image src={'/img/logo.png'} alt="logo" height={300} width={300} className="realtive z-20"/>
+        <Image src={'/img/gradient.png'} alt="gradient" height={900} width={900} className="absolute opacity-30 z-10"/>
+        <h1 className="text-xl font-semibold">
+          👋 Welcome to the All in One Interview plathform 🧑🏻‍💻🎯.
+        </h1>
+      </div>
       <div className="flex flex-col gap-6 justify-center">
         <input
           value={name}
