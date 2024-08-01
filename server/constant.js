@@ -1,1 +1,1 @@
-const CLIENT_URL='https://hire-huddle.vercel.app/'
+const CLIENT_URL='https://entervue-in.vercel.app/'
