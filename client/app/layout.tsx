@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import { SocketProvider } from "@/context/SocketProvider";
 import { Suspense } from "react";
+import { ClerkProvider } from "@clerk/nextjs"
 
 const inter = Inter({ subsets: ["latin"] });
 const mostserrat = Montserrat({ subsets: ["latin"], weight: ["100", "300", "400", "500", "700"] })
@@ -19,16 +20,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={cn(mostserrat.className)}>
-        <main className="bg-slate-950 min-h-screen">
-          <Suspense>
-            <SocketProvider>
-              {children}
-            </SocketProvider>
-          </Suspense>
-        </main>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={cn(mostserrat.className)}>
+          <main className="bg-slate-950 min-h-screen">
+            <Suspense>
+              <SocketProvider>
+                {children}
+              </SocketProvider>
+            </Suspense>
+          </main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

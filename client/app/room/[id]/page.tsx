@@ -7,6 +7,10 @@ import ReactPlayer from 'react-player';
 import peer from '@/service/peer';
 import Popup from '@/components/room/Popup';
 import CodePlayground from '@/components/interviewPage/CodePlayground';
+import { FaVideoSlash } from "react-icons/fa";
+import { FaMicrophoneSlash } from "react-icons/fa";
+import axios from 'axios';
+import { CurrentUser } from '@/app/types';
 
 const InterviewPage = () => {
   const [name, setName] = useState<null | string>(null)
@@ -20,6 +24,9 @@ const InterviewPage = () => {
   const socket = useSocket();
   const [toggleVideoOn, setToggleVideoOn] = useState(true);
   const [toggleMicOn, setToggleMicOn] = useState(true);
+  const [remoteMicStatus, setRemoteMicStatus] = useState(true)
+  const [remoteVideStatus, setRemoteVideoStatus] = useState(true);
+  const [currentuser, setCurrentuser] = useState<CurrentUser | null>(null);
 
   const handleUserJoined = useCallback((data: any) => {
     const { name, id } = data;
@@ -115,16 +122,28 @@ const InterviewPage = () => {
 
   const handleVideoOff = useCallback((data: any) => {
     remoteStream?.getVideoTracks().forEach((track: MediaStreamTrack) => {
-      console.log(data)
+      // console.log(data)
+      setRemoteVideoStatus((prev) => !prev);
       track.enabled = data.enabled;
     });
   }, [remoteStream]);
 
   const handleAudioOff = useCallback((data: any) => {
     remoteStream?.getAudioTracks().forEach((track: MediaStreamTrack) => {
+      // console.log(data)
+      setRemoteMicStatus((prev) => !prev)
       track.enabled = data.enabled;
     });
   }, [remoteStream]);
+
+  useEffect(() => {
+    axios.get('/api/get-currentuser').then((res) => {
+      setCurrentuser(res.data.currentUserObj)
+      // console.log(res.data.currentUserObj)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }, [])
 
 
   useEffect(() => {
@@ -187,7 +206,7 @@ const InterviewPage = () => {
   return (
     <div className='flex relative flex-col justify-between h-screen items-center'>
       <section className='py-2 w-full text-center border-b border-slate-800'>
-        🎉 Welcome - {name} 🎉
+        🎉 Welcome - {currentuser?.name} 🎉
       </section>
       {popup &&
         <Popup
@@ -199,28 +218,42 @@ const InterviewPage = () => {
         />
       }
       <section className={`${!toggleCode ? "w-[90%]" : "w-[100%] pl-2"} h-full relative overflow-hidden pt-`}>
-        <div className='absolute top-2 rounded overflow-hidden w-[180px] drop-shadow-lg'>
-          {myStream &&
-            <ReactPlayer
-              playing
-              muted
-              width='180px'
-              height='auto'
-              url={myStream}
-            />
-          }
+        <div className='absolute top-2 rounded overflow-hidden w-[180px] drop-shadow-lg z-30'>
+          {!toggleVideoOn ? (
+            <div className='bg-slate-700 flex flex-col items-center justify-center w-full h-[134px]'>
+              <FaVideoSlash size={35} />
+              {!toggleMicOn && <FaMicrophoneSlash size={35} />}
+            </div>
+          ) : myStream && (
+            <div className='relative w-fit h-fit'>
+              {!toggleMicOn && <div className='bg-black/20 w-full h-full absolute flex justify-center items-center'>
+                <FaMicrophoneSlash size={35} />
+              </div>}
+              <ReactPlayer
+                playing
+                muted
+                width='180px'
+                height='auto'
+                url={myStream}
+              />
+            </div>
+          )}
         </div>
         <div className='flex justify-between h-full align-baseline items-end gap-4'>
-          {/* <div className={`${!toggleCode ? "w-[100%]" : "absolute w-[40%] h-[auto] max-w-[700px] bottom-2"} rounded  h-full overflow-hidden flex justify-center z-20 pb-1`}> */}
-          <div className={`flex  w-full justify-center items-center mx-auto max-w-[930px  ${toggleCode ? "rounded overflow-hidden mb-2 bg-red-200 flex justify- items-end" : "h-full"}`}>
-              {remoteStream &&
+          <div className={`flex  w-full justify-center items-center mx-auto relative z-20  ${toggleCode ? "rounded overflow-hidden mb-2 flex justify- items-end" : "h-full"}`}>
+            {remoteStream &&
+              <>
+                {!remoteMicStatus &&
+                  <FaMicrophoneSlash size={35} className={`absolute ${toggleCode ? "bottom-3 left-3" : "bottom-[7rem] left-6"} text-red-600 `} />
+                }
                 <ReactPlayer
                   playing
                   width="100%"
                   height="100%"
                   url={remoteStream}
                 />
-              }
+              </>
+            }
           </div>
           {toggleCode &&
             <div className='max-w-[60%] h-full z-20 bg-[#282A36]'>
@@ -241,13 +274,6 @@ const InterviewPage = () => {
           isHost={isHost}
         />
       </section>
-
-      {/* {toggleCode &&
-        <div className='absolute right-0 top-0 h-screen z-20 bg-[#282A36]'>
-        <div className=' right-0 top-0 h-screen z-20 bg-[#282A36]'>
-          <CodePlayground isHost={isHost} />
-        </div>
-      } */}
     </div>
   )
 }

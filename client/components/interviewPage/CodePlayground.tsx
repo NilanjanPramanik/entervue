@@ -38,7 +38,15 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
   };
 
   const onChange = useCallback((val: any) => {
-    isHost ? setHostCode(val) : setNonHostCode(val);
+    // isHost ? setHostCode(val) : setNonHostCode(val);
+    if(isHost){
+      setHostCode(val)
+      localStorage.setItem("code", val)
+    } 
+    else {
+      setNonHostCode(val)
+      localStorage.setItem("code", val)
+    }
   }, []);
 
   const toggleCodeAccess = useCallback(() => {
@@ -79,6 +87,16 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
   const handleLanguageUpdate = useCallback((data: any) => {
     const {language} = data;
     setLanguage(language)
+  }, [])
+
+  useEffect(() => {
+    const storedCode = localStorage.getItem("code");
+    if(isHost){
+      storedCode && setHostCode(storedCode)
+    }
+    else {
+      storedCode && setNonHostCode(storedCode)
+    }
   }, [])
 
   useEffect(() => {

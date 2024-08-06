@@ -15,7 +15,7 @@ const Popup: React.FC<PopupProps> = ({
 }) => {
   return (
     <div
-      className='fixed h-screen w-screen bg-black/60 flex justify-center items-center z-20'
+      className='fixed h-screen w-screen bg-black/60 flex justify-center items-center z-50'
     >
       <div className='border h-[200px] w-[340px] bg-slate-900 flex flex-col justify-evenly items-center rounded border-slate-800 gap-4'>
         <div>

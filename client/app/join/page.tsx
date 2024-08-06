@@ -1,14 +1,18 @@
 'use client';
 
 import { useSocket } from '@/context/SocketProvider';
+import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react'
+import { CurrentUser } from '../types';
+import { SignedIn } from '@clerk/nextjs';
 
 const JoinPage = () => {
   const [name, setName] = useState<string>("")
   const [host, setHost] = useState('');
   const [hostId, setHostId] = useState('');
   const [isLoading, setLoading] = useState(false);
+  const [currentuser, setCurrentuser] = useState<CurrentUser | null>(null);
   const searchParams: any = useSearchParams();
   const router = useRouter();
   const socket = useSocket()
@@ -28,7 +32,7 @@ const JoinPage = () => {
     if (hostId) {
       localStorage.setItem("host", hostId);
     }
-    console.log(name, room)
+    // console.log(name, room)
   }, [])
 
   useEffect(() => {
@@ -37,7 +41,16 @@ const JoinPage = () => {
     // console.log(host)
   }, [searchParams])
 
-
+  useEffect(() => {
+    axios.get('/api/get-currentuser').then((res) => {
+      setCurrentuser(res.data?.currentUserObj)
+      setName(res.data?.currentUserObj.name)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }, [])
+  // console.log(currentuser)
+  
   useEffect(() => {
     socket?.on('room:join', (data) => handleJoinRoom(data))
 
@@ -54,20 +67,22 @@ const JoinPage = () => {
         <p className='text-balance font-light'>You have a Interview with Mr. {host}</p>
       </div>
       <div className='flex  gap-6'>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          type="text"
-          placeholder='Your Name'
-          className='py-2 rounded text-sm bg-transparent border border-slate-700 px-4 outline-none'
-        />
-        <button
-          onClick={joinToInterview}
-          disabled={!name}
-          className='border h-fit text-sm px-6 py-2 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 font-semibold'
-        >
-          {isLoading ? "Going..." : "Go to Interview screen"}
-        </button>
+        <SignedIn>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            type="text"
+            placeholder='Your Name'
+            className='py-2 rounded text-sm bg-transparent border border-slate-700 px-4 outline-none'
+          />
+          <button
+            onClick={joinToInterview}
+            disabled={!name}
+            className='border h-fit text-sm px-6 py-2 rounded cursor-pointer bg-lime-400 hover:bg-lime-500 text-slate-950 font-semibold'
+          >
+            {isLoading ? "Going..." : "Go to Interview screen"}
+          </button>
+        </SignedIn>
       </div>
     </div>
   )
