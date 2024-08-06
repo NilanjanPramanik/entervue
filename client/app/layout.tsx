@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    // <ClerkProvider>
       <html lang="en">
         <body className={cn(mostserrat.className)}>
           <main className="bg-slate-950 min-h-screen">
@@ -32,6 +32,6 @@ export default function RootLayout({
           </main>
         </body>
       </html>
-    </ClerkProvider>
+    // </ClerkProvider>
   );
 }

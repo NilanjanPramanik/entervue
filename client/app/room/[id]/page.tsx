@@ -136,14 +136,14 @@ const InterviewPage = () => {
     });
   }, [remoteStream]);
 
-  useEffect(() => {
-    axios.get('/api/get-currentuser').then((res) => {
-      setCurrentuser(res.data.currentUserObj)
-      // console.log(res.data.currentUserObj)
-    }).catch((err) => {
-      console.log(err)
-    })
-  }, [])
+  // useEffect(() => {
+  //   axios.get('/api/get-currentuser').then((res) => {
+  //     setCurrentuser(res.data.currentUserObj)
+  //     // console.log(res.data.currentUserObj)
+  //   }).catch((err) => {
+  //     console.log(err)
+  //   })
+  // }, [])
 
 
   useEffect(() => {
@@ -244,7 +244,7 @@ const InterviewPage = () => {
             {remoteStream &&
               <>
                 {!remoteMicStatus &&
-                  <FaMicrophoneSlash size={35} className={`absolute ${toggleCode ? "bottom-3 left-3" : "bottom-[7rem] left-6"} text-red-600 `} />
+                  <FaMicrophoneSlash size={35} className={`absolute ${toggleCode ? "bottom-3 left-3" : "bottom-[7rem] left-6"} text-red-600 lg:bottom-2 left-[15rem]`} />
                 }
                 <ReactPlayer
                   playing
