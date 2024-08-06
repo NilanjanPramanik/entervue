@@ -136,14 +136,14 @@ const InterviewPage = () => {
     });
   }, [remoteStream]);
 
-  // useEffect(() => {
-  //   axios.get('/api/get-currentuser').then((res) => {
-  //     setCurrentuser(res.data.currentUserObj)
-  //     // console.log(res.data.currentUserObj)
-  //   }).catch((err) => {
-  //     console.log(err)
-  //   })
-  // }, [])
+  useEffect(() => {
+    axios.get('/api/get-currentuser').then((res) => {
+      setCurrentuser(res.data.currentUserObj)
+      // console.log(res.data.currentUserObj)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }, [])
 
 
   useEffect(() => {

@@ -41,15 +41,14 @@ const JoinPage = () => {
     // console.log(host)
   }, [searchParams])
 
-  // useEffect(() => {
-  //   axios.get('/api/get-currentuser').then((res) => {
-  //     setCurrentuser(res.data?.currentUserObj)
-  //     setName(res.data?.currentUserObj.name)
-  //   }).catch((err) => {
-  //     console.log(err)
-  //   })
-  // }, [])
-  // console.log(currentuser)
+  useEffect(() => {
+    axios.get('/api/get-currentuser').then((res) => {
+      setCurrentuser(res.data?.currentUserObj)
+      setName(res.data?.currentUserObj.name)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }, [])
   
   useEffect(() => {
     socket?.on('room:join', (data) => handleJoinRoom(data))
