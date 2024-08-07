@@ -9,6 +9,7 @@ import { BallTriangle } from "react-loader-spinner"
 import axios from "axios";
 import { SignIn, SignInButton, SignOutButton } from "@clerk/nextjs";
 import { CurrentUser } from "./types";
+import qs from "query-string"
 
 export default function Home() {
   const router = useRouter();
@@ -27,9 +28,17 @@ export default function Home() {
     socket?.emit('room:join', { name, room: uurl, host: socket.id });
     localStorage.setItem("room_id", uurl); // Saving the room_id on the host's browser
     localStorage.setItem("host", String(socket?.id));
-    console.log(socket?.id)
+    // console.log(socket?.id)
     setLoading(true);
-    socket?.id && router.push(`/invite?room=${uurl}&host=${currentuser?.name}&id=${socket?.id}`)
+    
+    const query = {room:uurl, host: currentuser?.name, id: socket?.id};
+
+    const url = qs.stringifyUrl({
+      url: '/invite',
+      query
+    }, {skipNull: true})
+
+    socket?.id && router.push(url)
 
   }, [router, currentuser?.name, socket, socket?.id]);
 
@@ -50,7 +59,7 @@ export default function Home() {
     <section className="flex flex-col relative justify-evenly items-center min-h-screen text-white">
       <header className="fixed top-0 bg-white/10 backdrop-blur-md w-full justify-end flex px-6 py-4 text-sm z-50">
         <div className="border-slate-500 border rounded px-3 py-1 hover:bg-rose-600">
-          {currentuser ? <SignOutButton /> : <SignInButton />}
+          {currentuser ? (<SignOutButton redirectUrl="/" />) : <SignInButton />}
         </div>
       </header>
 
@@ -68,7 +77,7 @@ export default function Home() {
           </div>
         </>
       ) : (
-        <div className="flex flex-col gap-6 justify-center z-20">
+        <div className="flex flex-col gap-6 justify-center relative z-40">
           {/* <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -77,13 +86,13 @@ export default function Home() {
           /> */}
           <button
             onClick={goToInterview}
-            className="bg-lime-300 px-5 py-2 rounded text-slate-950 font-medium cursor-pointer hover:bg-lime-400"
+            className="bg-lime-300 px-5 py-2 rounded text-slate-950 font-medium cursor-pointer hover:bg-lime-400 relative z-30"
           >
             {isLoading ? "Creating..." : "Create Instant Interview"}
           </button>
         </div>
       )}
-      <Image src={'/img/gradient.png'} alt="gradient" height={900} width={900} className="absolute bottom-0 opacity-30 z-10" />
+      {/* <Image src={'/img/gradient.png'} alt="gradient" height={900} width={900} className="absolute bottom-0 opacity-30 -z-10" /> */}
     </section>
   );
 }

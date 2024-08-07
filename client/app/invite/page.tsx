@@ -4,6 +4,7 @@ import Loading from '@/components/Loading';
 import { useSocket } from '@/context/SocketProvider';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useCallback, useEffect, useState } from 'react'
+import qs from 'query-string'
 
 const InvitePage = () => {
   const [host, setHost] = useState<string>("");
@@ -21,10 +22,13 @@ const InvitePage = () => {
   }, [searchParams])
 
   const handleCopyLink = useCallback(async () => {
-    room && await navigator.clipboard.writeText(
-      `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/join?room=${room}&host=${host}&id=${hostId}` ||
-      `http://localhost:3000/join?room=${room}&host=${host}&id=${hostId}`
-    )
+    const query = {room, host, id: hostId};
+    const url = qs.stringifyUrl({
+      url: `${process.env.NEXT_PUBLIC_CLIENT_BASE_URL}/join`,
+      query
+    })
+
+    room && await navigator.clipboard.writeText(url);
     setCopied(true);
   }, [room, host, hostId]);
 
