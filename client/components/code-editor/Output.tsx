@@ -17,6 +17,7 @@ const Output = ({
   const [loading, setLoading] = useState(false);
   const socket = useSocket();
   const url = usePathname();
+  const [keysPressed, setKeysPressed] = useState<any>({});
 
   const handleOutput = useCallback(async () => {
     setErr(false);
@@ -50,19 +51,40 @@ const Output = ({
 
   const handleSendOutput = useCallback(() => {
     const room = url.slice(6);
-    socket?.emit("send:output", {room, output, error:isErr});
+    socket?.emit("send:output", { room, output, error: isErr });
   }, [socket, output])
 
   const handleRecieveOutput = useCallback((data: any) => {
-    const {output, error} = data;
+    const { output, error } = data;
     setOutput(output);
     setErr(error);
-  }, [])
+  }, []);
+
+  // const handleKeyDownCapture = (event: any) => {
+  //   setKeysPressed((prevKeys: any) => ({
+  //     ...prevKeys,
+  //     [event.key]: true,
+  //   }));
+  // };
+
+  // const handleKeyUpCapture = (event: any) => {
+  //   setKeysPressed((prevKeys: any) => ({
+  //     ...prevKeys,
+  //     [event.key]: false,
+  //   }));
+  // };
+
+  // useEffect(() => {
+  //   if (keysPressed['Control'] && keysPressed['Enter']) {
+  //     // handleOutput();
+  //     console.log("first")
+  //   }
+  // }, [keysPressed, handleOutput]);
 
   useEffect(() => {
     handleSendOutput();
     socket?.on("recieve:output", handleRecieveOutput);
-    
+
     return () => {
       socket?.off("recieve:output", handleRecieveOutput);
     }
@@ -74,6 +96,8 @@ const Output = ({
       <button
         disabled={!code || loading}
         onClick={handleOutput}
+        // onKeyDownCapture={handleKeyDownCapture}
+        // onKeyUpCapture={handleKeyUpCapture}
         className={`absolute top-2 border w-fit border-slate-500 right-4 text-xs rounded p-2 disabled:cursor-not-allowe disabled:opacity-30 bg-slate-900 hover:bg-slate-950 ${loading && "cursor-wait"}`}
       >
         {loading ? "Running..." : "Run code"}

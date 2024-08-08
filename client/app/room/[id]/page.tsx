@@ -137,17 +137,27 @@ const InterviewPage = () => {
   }, [remoteStream]);
 
   useEffect(() => {
-    axios.get('/api/get-currentuser').then((res) => {
-      setCurrentuser(res.data.currentUserObj)
-      // console.log(res.data.currentUserObj)
-    }).catch((err) => {
-      console.log(err)
-    })
+    localStorage.removeItem("code")
+    if (sessionStorage.getItem("name")) {
+      setCurrentuser({
+        ...currentuser,
+        //@ts-ignore
+        name: sessionStorage.getItem("name")
+      })
+    }
+    // console.log(sessionStorage.getItem("name"))
+    // axios.get('/api/get-currentuser').then((res) => {
+    //   setCurrentuser(res.data.currentUserObj)
+    //   // console.log(res.data.currentUserObj)
+    // }).catch((err) => {
+    //   console.log(err)
+    // })
   }, [])
 
 
   useEffect(() => {
-    if (socket?.id === localStorage.getItem("host")) {
+    // if (socket?.id === localStorage.getItem("host")) {
+    if (socket?.id === sessionStorage.getItem("host")) {
       setHost(true);
     }
   }, [socket?.id])
@@ -244,7 +254,7 @@ const InterviewPage = () => {
             {remoteStream &&
               <>
                 {!remoteMicStatus &&
-                  <FaMicrophoneSlash size={35} className={`absolute ${toggleCode ? "bottom-3 left-3" : "bottom-[7rem] left-6"} text-red-600 lg:bottom-2 left-[15rem]`} />
+                  <FaMicrophoneSlash size={45} className={`absolute text-red-600`} />
                 }
                 <ReactPlayer
                   playing

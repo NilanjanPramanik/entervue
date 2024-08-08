@@ -28,9 +28,11 @@ const JoinPage = () => {
 
   const handleJoinRoom = useCallback((data: any) => {
     const { name, room } = data;
-    localStorage.setItem("room_id", room);
+    // localStorage.setItem("room_id", room);
+    sessionStorage.setItem("room_id", room);
     if (hostId) {
-      localStorage.setItem("host", hostId);
+      sessionStorage.setItem("host", hostId);
+      // localStorage.setItem("host", hostId);
     }
     // console.log(name, room)
   }, [])
@@ -45,6 +47,7 @@ const JoinPage = () => {
     axios.get('/api/get-currentuser').then((res) => {
       setCurrentuser(res.data?.currentUserObj)
       setName(res.data?.currentUserObj.name)
+      sessionStorage.setItem("name", res.data?.currentUserObj?.name)
     }).catch((err) => {
       console.log(err)
     })

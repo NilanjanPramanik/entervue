@@ -34,10 +34,10 @@ const FunctionBtn = ({
 
   const handleOpenCode = () => {
     setToggleCode((prev: boolean) => !prev);
-    if(!toggleCode) {
-      socket?.emit("open:code", {room: url.slice(6)});
+    if (!toggleCode) {
+      socket?.emit("open:code", { room: url.slice(6) });
     } else {
-      socket?.emit("close:code", {room: url.slice(6)})
+      socket?.emit("close:code", { room: url.slice(6) })
     }
   };
 
@@ -63,24 +63,28 @@ const FunctionBtn = ({
       <div className='grid grid-cols-3 items-center px-6 border-t-[1px] border-slate-800 pt-2 pb-2'>
         <div></div>
         <div className='flex justify-center gap-4'>
-          <ToggleBtn 
-            key={1} 
-            Icon={FaMicrophone} 
-            onClick={toggleAudio} 
-            toggleMicOn={toggleMicOn} 
-            />
-          <ToggleBtn 
-            key={2} 
-            Icon={FaVideo} 
+          <ToggleBtn
+            key={1}
+            Icon={FaMicrophone}
+            onClick={toggleAudio}
+            toggleMicOn={toggleMicOn}
+          />
+          <ToggleBtn
+            key={2}
+            Icon={FaVideo}
             onClick={toggleVideo}
             toggleVideoOn={toggleVideoOn}
-            />
+          />
           <button className='bg-red-600 px-5 rounded-full items-center pt-[2px]'>
             <MdCallEnd size={28} />
           </button>
         </div>
         <div className='flex justify-end'>
-          <button className=' disabled:opacity-45 cursor-pointer disabled:hover:cursor-not-allowed' disabled={!isHost} onClick={handleOpenCode}>
+          <button
+            className=' disabled:opacity-0 cursor-pointer disabled:hover:cursor-not-allowed'
+            disabled={!isHost}
+            onClick={handleOpenCode}
+          >
             <VscVscodeInsiders size={26} />
           </button>
         </div>

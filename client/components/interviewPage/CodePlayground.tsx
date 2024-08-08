@@ -39,10 +39,10 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
 
   const onChange = useCallback((val: any) => {
     // isHost ? setHostCode(val) : setNonHostCode(val);
-    if(isHost){
+    if (isHost) {
       setHostCode(val)
       localStorage.setItem("code", val)
-    } 
+    }
     else {
       setNonHostCode(val)
       localStorage.setItem("code", val)
@@ -52,7 +52,7 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
   const toggleCodeAccess = useCallback(() => {
     const room = url.slice(6);
     setWriteAccess((prev) => !prev);
-    socket?.emit("write:access", {room});
+    socket?.emit("write:access", { room });
   }, [socket]);
 
   const toggleNonHostCodeAccess = useCallback(() => {
@@ -61,42 +61,40 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
 
   const sendHostCode = useDebouncedCallback(() => {
     const room = url.slice(6);
-    writeAccess && socket?.emit('send:host-code', {room, code: hostCode});
-  }, 1000)
+    writeAccess && socket?.emit('send:host-code', { room, code: hostCode });
+  }, 400)
 
   const sendNonHostCode = useDebouncedCallback(() => {
     const room = url.slice(6);
-    writeAccess && socket?.emit('send:nonhost-code', {room, code: nonHostCode});
-  }, 1000)
+    writeAccess && socket?.emit('send:nonhost-code', { room, code: nonHostCode });
+  }, 400)
 
   const handleRecieveHostCode = useCallback((data: any) => {
-    const {from, code} = data;
+    const { from, code } = data;
     setNonHostCode(code)
   }, [setNonHostCode]);
 
   const handleRecieveNonHostCode = useCallback((data: any) => {
-    const {from, code} = data;
+    const { from, code } = data;
+    // console.log(code)
+    localStorage.setItem("code", code);
     setHostCode(code)
   }, [setHostCode])
 
   const handleLanguageChange = useCallback(() => {
     const room = url.slice(6);
-    socket?.emit("change:language", {room, language})
+    socket?.emit("change:language", { room, language })
   }, [socket, language]);
 
   const handleLanguageUpdate = useCallback((data: any) => {
-    const {language} = data;
+    const { language } = data;
     setLanguage(language)
   }, [])
 
   useEffect(() => {
     const storedCode = localStorage.getItem("code");
-    if(isHost){
-      storedCode && setHostCode(storedCode)
-    }
-    else {
-      storedCode && setNonHostCode(storedCode)
-    }
+    storedCode && setHostCode(storedCode)
+    storedCode && setNonHostCode(storedCode)
   }, [])
 
   useEffect(() => {
@@ -110,7 +108,7 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
 
   useEffect(() => {
     socket?.on("change:language", handleLanguageUpdate);
-    
+
     return () => {
       socket?.off("change:language", handleLanguageUpdate);
     }
@@ -131,7 +129,7 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
       socket?.off('recieve:host-code', handleRecieveHostCode);
       socket?.off('recieve:nonhost-code', handleRecieveNonHostCode)
     }
-  }, [socket,handleRecieveHostCode, handleRecieveNonHostCode, writeAccess])
+  }, [socket, handleRecieveHostCode, handleRecieveNonHostCode, writeAccess])
 
 
   return (
@@ -152,7 +150,7 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
               {writeAccess ? "Give access 📝" : "Take access 📝"}
             </button>
           }
-          {!isHost && 
+          {!isHost &&
             <pre className='text-lime-300 text-sm items-center align-middle flex justify-center'>
               {writeAccess ? "Write mode 📝" : "View mode 📄"}
             </pre>

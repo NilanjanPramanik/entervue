@@ -26,8 +26,10 @@ export default function Home() {
     })
 
     socket?.emit('room:join', { name, room: uurl, host: socket.id });
-    localStorage.setItem("room_id", uurl); // Saving the room_id on the host's browser
-    localStorage.setItem("host", String(socket?.id));
+    // localStorage.setItem("room_id", uurl); // Saving the room_id on the host's browser
+    sessionStorage.setItem("room_id", uurl); // Saving the room_id on the host's browser
+    // localStorage.setItem("host", String(socket?.id));
+    sessionStorage.setItem("host", String(socket?.id));
     // console.log(socket?.id)
     setLoading(true);
     
@@ -48,6 +50,7 @@ export default function Home() {
 
   useEffect(() => {
     axios.get('/api/get-currentuser').then((res) => {
+      sessionStorage.setItem("name", res.data.currentUserObj.name)
       setCurrentuser(res.data.currentUserObj)
     }).catch((err) => {
       console.log(err)
