@@ -181,7 +181,7 @@ const CodePlayground = ({ isHost }: { isHost: boolean }) => {
             extensions={[EXTENSIONS[language]]}
             basicSetup={{ autocompletion: false }}
             minWidth={'850px'}
-            maxWidth={'650px'}
+            // maxWidth={'650px'}
             minHeight={'500px'}
           />
         </Panel>

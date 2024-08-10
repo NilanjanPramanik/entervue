@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { FaMicrophone } from "react-icons/fa";
 import { FaVideo } from "react-icons/fa";
-import { MdCallEnd } from "react-icons/md";
+import { MdCallEnd, MdOutlineScreenShare, MdOutlineStopScreenShare } from "react-icons/md";
 import { VscVscodeInsiders } from "react-icons/vsc";
 import date from 'date-and-time';
 import ToggleBtn from './ToggleBtn';
@@ -17,7 +17,11 @@ const FunctionBtn = ({
   toggleVideo,
   toggleMicOn,
   toggleVideoOn,
-  isHost
+  isHost,
+  isScreenSharing,
+  setScreenSharing,
+  isScreenRecieving,
+  isRemoteStream
 }: {
   setToggleCode: any,
   toggleCode: boolean,
@@ -25,7 +29,11 @@ const FunctionBtn = ({
   toggleVideo: any,
   toggleMicOn: any,
   toggleVideoOn: any,
-  isHost: boolean
+  isHost: boolean,
+  isScreenSharing: boolean,
+  setScreenSharing: any,
+  isScreenRecieving: boolean,
+  isRemoteStream: boolean
 }) => {
   const now = new Date();
   const [time, setTime] = useState<null | string>();
@@ -41,26 +49,14 @@ const FunctionBtn = ({
     }
   };
 
-  // const handleVideoOnOff = () => {
-  //   setToggleVideoOn((prev: boolean)=>!prev);
-  // }
-
-  // const handleMicOnOff = () => {
-  //   setToggleMicOn((prev: boolean)=>!prev);
-  // }
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => setTime(date.format(now, 'hh:mm:ss A')), 1000);
-
-  //   return () => {
-  //     clearInterval(interval);
-  //   };
-  // }, [time, now])
-
+  const handleScreenSharing = useCallback(() => {
+    setScreenSharing((prev: any) => !prev);
+  }, [])
 
   return (
-    <div className='w-screen bg-slate-950'>
-      <div className='grid grid-cols-3 items-center px-6 border-t-[1px] border-slate-800 pt-2 pb-2'>
+    <div className={`w-screen bg-slate-950`}>
+      <div className='relative grid grid-cols-3 items-center px-6 border-t-[1px] border-slate-800 pt-2 pb-2'>
+        {!isRemoteStream && <div className='absolute w-full h-[50px] bg-slate-950/70 top-0 z-50' />}
         <div></div>
         <div className='flex justify-center gap-4'>
           <ToggleBtn
@@ -79,9 +75,16 @@ const FunctionBtn = ({
             <MdCallEnd size={28} />
           </button>
         </div>
-        <div className='flex justify-end'>
+        <div className='flex justify-end gap-10'>
           <button
-            className=' disabled:opacity-0 cursor-pointer disabled:hover:cursor-not-allowed'
+            disabled={isScreenRecieving}
+            className='cursor-pointer disabled:hover:cursor-not-allowed disabled:opacity-40'
+            onClick={handleScreenSharing}
+          >
+            {isScreenSharing ? <MdOutlineStopScreenShare size={26} /> : <MdOutlineScreenShare size={26} />}
+          </button>
+          <button
+            className=' disabled:hidden cursor-pointer disabled:hover:cursor-not-allowed'
             disabled={!isHost}
             onClick={handleOpenCode}
           >
@@ -94,3 +97,4 @@ const FunctionBtn = ({
 }
 
 export default FunctionBtn
+

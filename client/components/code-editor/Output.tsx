@@ -92,7 +92,7 @@ const Output = ({
 
 
   return (
-    <div className='max-w-[850px] h-full bg-[#22242e] py-3'>
+    <div className='max-w-[850px h-full bg-[#22242e] py-3'>
       <button
         disabled={!code || loading}
         onClick={handleOutput}

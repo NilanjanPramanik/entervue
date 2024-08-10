@@ -85,6 +85,16 @@ io.on('connection', (socket) => {
   socket.on("toggle:audio", ({to, enabled}) => {
     io.to(to).emit("audio:off", {enabled})
   })
+
+  socket.on("share:screen", ({to}) => {
+    // console.log(to)
+    io.to(to).emit("share:screen", {from: socket.id})
+  })
+
+  socket.on("screen:stop", ({to}) => {
+    // console.log(to)
+    io.to(to).emit("screen:stop", {from: socket.id})
+  })
 })
 
 server.listen(port, () => console.log(`Socket Server running on ${port}...`))

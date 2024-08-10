@@ -3,7 +3,10 @@ interface PopupProps {
   handleVideoStream: () => void,
   remoteSocketId: null | string,
   sendStreams: () => void,
-  remoteStream: any
+  remoteStream: any[],
+  myStream: any[],
+  remoteName: string | null,
+  isHost: boolean,
 }
 
 const Popup: React.FC<PopupProps> = ({
@@ -11,7 +14,10 @@ const Popup: React.FC<PopupProps> = ({
   handleVideoStream,
   remoteSocketId,
   sendStreams,
-  remoteStream
+  remoteStream,
+  myStream,
+  remoteName,
+  isHost
 }) => {
   return (
     <div
@@ -23,15 +29,14 @@ const Popup: React.FC<PopupProps> = ({
             Please Wait!
           </h2>
           <h3 className='text-sm font-light opacity-70'>
-            Let us set everything up for you!
+            {isHost ? (remoteName? `${remoteName} is waiting for access.` : "Waiting for the paritcipent to join.") : "Let us set everything up for you!"}
           </h3>
         </div>
         <div className='flex gap-4 text-sm font-semibold'>
           <button
             onClick={handleVideoStream}
             disabled={!remoteSocketId}
-            className={`border h-fit px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 
-              ${!remoteSocketId && "cursor-not-allowed opacity-30"}`}
+            className={`border h-fit px-6 py-1 rounded bg-lime-300 hover:bg-lime-400 text-slate-950 ${(!remoteSocketId) && "cursor-not-allowed opacity-30"}`}
           >
             Accept to Join
           </button>
